@@ -1,0 +1,46 @@
+<UserControl x:Class="SchoolManagement.WPF.Views.Billing.UnpaidFeeView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:controls="clr-namespace:SchoolManagement.WPF.Views.Controls">
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+
+        <Border Grid.Row="0" Style="{StaticResource ToolbarPanelStyle}" Margin="0,0,0,12">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                </Grid.RowDefinitions>
+
+                <controls:FeeFilterBar Grid.Row="0" />
+
+                <StackPanel Grid.Row="1" Orientation="Horizontal" Margin="0,12,0,0">
+                    <Button Content="Register payment"
+                            Command="{Binding RegisterPaymentCommand}"
+                            Style="{StaticResource PrimaryButtonStyle}"
+                            MinWidth="150" />
+                    <Button Content="Open student file"
+                            Command="{Binding OpenStudentCommand}"
+                            Margin="10,0,0,0" />
+                    <Button Content="Recompute overdue"
+                            Command="{Binding RefreshOverdueCommand}"
+                            Margin="10,0,0,0"
+                            ToolTip="Flags every unpaid line past its due date as overdue" />
+                    <Border Width="1" Margin="14,2" Background="{StaticResource BorderBrush}" />
+                    <Button Content="Export PDF" Command="{Binding ExportPdfCommand}" />
+                    <Button Content="Export Excel" Command="{Binding ExportExcelCommand}" Margin="10,0,0,0" />
+                    <Button Content="Refresh" Command="{Binding RefreshCommand}" Margin="10,0,0,0" />
+                </StackPanel>
+            </Grid>
+        </Border>
+
+        <controls:FeeSummaryBar Grid.Row="1" Margin="0,0,0,12" />
+
+        <controls:FeeGrid Grid.Row="2" />
+    </Grid>
+</UserControl>

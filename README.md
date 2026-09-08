@@ -1,18 +1,32 @@
-# School Payment Management
+# School / Training Center Management
 
-A Windows desktop application for managing a school's students, classes, invoices, monthly scholar fees, and payments. Amounts are recorded in Malagasy Ariary (MGA / Ar).
+A Windows desktop application for managing a school or training center: students, academic levels (L1, L2, L3), independent student groups, class schedules, attendance, individual payment obligations, receipts, and financial reports. Amounts are recorded in Malagasy Ariary (MGA / Ar).
+
+The application runs entirely on the local PC. It does not require a separate database server.
 
 ## Architecture
 
 ```text
 SchoolManagement
 ├── SchoolManagement.Domain          Entities, enums, repository contracts
-├── SchoolManagement.Application     Services, DTOs, FluentValidation
+├── SchoolManagement.Application     Services, DTOs, validators
 ├── SchoolManagement.Infrastructure  EF Core + SQLite, repositories, PDF/Excel
 └── SchoolManagement.WPF             MVVM desktop UI
 ```
 
-Views contain no business logic. Payments, invoices and receipts are written in a database transaction so a failed save never leaves a half-updated balance. Students, classes and payments use soft delete / cancellation rather than physical deletion of financial history.
+Views contain no business logic. Payments and receipts are written in a database transaction so a failed save never leaves a half-updated balance. Financial records are cancelled or reversed rather than permanently deleted.
+
+Academic structure:
+
+```text
+Academic Level (L1, L2, L3)
+ └── Student Group (e.g. L1 Group 09:00 - 10:00)
+      ├── Students (each student belongs to one level and one group)
+      └── Class schedules (day + start/end time)
+           └── Attendance (per group, never mixed across groups)
+```
+
+Money is tracked per student through a unified `StudentFee` obligation (monthly Écolage with month/year, or one-time Droit / Livre / Mock Exam / Official Exam). Several payments can settle the same obligation.
 
 ## Requirements
 
@@ -27,7 +41,7 @@ dotnet restore MEACH.slnx
 dotnet run --project SchoolManagement.WPF
 ```
 
-The first launch applies EF Core migrations, seeds roles, payment types, a current school year, and the default administrator.
+The first launch applies EF Core migrations, seeds roles, academic levels L1–L3, payment types, a current school year, and the default administrator.
 
 ### Default login
 
@@ -52,6 +66,8 @@ A relative file name is stored under:
 
 An absolute path in configuration is honoured as-is. Logs go to `%LocalAppData%\SchoolManagement\logs`. Settings include a database backup action.
 
+If you already used an earlier version of this application, **delete the old database file** before the first launch of this schema. The previous invoice/class model is not upgraded in place.
+
 New schema changes:
 
 ```bash
@@ -66,9 +82,20 @@ dotnet ef migrations add <Name> \
 | Role           | Access |
 |----------------|--------|
 | Administrator  | Full access, including users and settings |
-| Accountant     | Invoices, payment history, financial reports |
-| Cashier        | Register payments and issue receipts (cannot delete payments or manage users) |
-| School manager | Students, classes, reports |
+| Accountant     | Payments, financial information and reports |
+| Cashier        | Register payments and issue receipts (cannot cancel/reverse payments or manage users) |
+| School manager | Students, academic levels, groups, schedules, attendance and reports |
+
+## Modules
+
+- Dashboard — student counts by L1/L2/L3, collections, overdue fees, absences, recent payments
+- Students — list, file (schedule, attendance, fees, payments, receipts), transfer between groups
+- Academic levels — L1 / L2 / L3, groups under each level
+- Student groups — independent groups per level, with class sessions
+- Attendance — daily sheet per group and session, plus attendance reports
+- Payments — Droit, Écolage, Livre, Mock Exam, Official Exam, unpaid balances, history, receipts
+- Financial reports — daily cash, monthly income, by group, by type, outstanding balances (PDF and Excel)
+- Administration — users, payment types, audit log, settings
 
 ## Publish a Windows executable
 

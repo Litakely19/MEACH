@@ -1,0 +1,182 @@
+<UserControl x:Class="SchoolManagement.WPF.Views.Payments.PaymentHistoryView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:controls="clr-namespace:SchoolManagement.WPF.Views.Controls">
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+
+        <Border Grid.Row="0" Style="{StaticResource ToolbarPanelStyle}" Margin="0,0,0,12">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                </Grid.RowDefinitions>
+
+                <Grid Grid.Row="0">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+
+                    <TextBox Grid.Column="0"
+                             MinWidth="200"
+                             Text="{Binding SearchTerm, UpdateSourceTrigger=PropertyChanged}"
+                             ToolTip="Search by payment number, receipt number, student or reference">
+                        <TextBox.InputBindings>
+                            <KeyBinding Key="Return" Command="{Binding SearchCommand}" />
+                        </TextBox.InputBindings>
+                    </TextBox>
+
+                    <ComboBox Grid.Column="1"
+                              Width="160"
+                              Margin="10,0,0,0"
+                              ItemsSource="{Binding AcademicLevelOptions}"
+                              SelectedItem="{Binding SelectedAcademicLevel}"
+                              DisplayMemberPath="Label" />
+
+                    <ComboBox Grid.Column="2"
+                              Width="140"
+                              Margin="10,0,0,0"
+                              ItemsSource="{Binding ClassOptions}"
+                              SelectedItem="{Binding SelectedClass}"
+                              DisplayMemberPath="Label" />
+
+                    <ComboBox Grid.Column="3"
+                              Width="160"
+                              Margin="10,0,0,0"
+                              ItemsSource="{Binding PaymentTypeOptions}"
+                              SelectedItem="{Binding SelectedPaymentType}"
+                              DisplayMemberPath="Label" />
+
+                    <ComboBox Grid.Column="4"
+                              Width="150"
+                              Margin="10,0,0,0"
+                              ItemsSource="{Binding MethodOptions}"
+                              SelectedItem="{Binding SelectedMethod}"
+                              DisplayMemberPath="Label" />
+
+                    <ComboBox Grid.Column="5"
+                              Width="140"
+                              Margin="10,0,0,0"
+                              ItemsSource="{Binding StatusOptions}"
+                              SelectedItem="{Binding SelectedStatus}"
+                              DisplayMemberPath="Label" />
+                </Grid>
+
+                <Grid Grid.Row="1" Margin="0,10,0,0">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+
+                    <StackPanel Grid.Column="0" Orientation="Horizontal">
+                        <TextBlock Text="From" Style="{StaticResource CaptionStyle}" VerticalAlignment="Center" />
+                        <DatePicker Width="130" Margin="8,0,0,0" SelectedDate="{Binding From}" />
+                        <TextBlock Text="to" Style="{StaticResource CaptionStyle}" VerticalAlignment="Center" Margin="8,0" />
+                        <DatePicker Width="130" SelectedDate="{Binding To}" />
+                        <Button Content="Today"
+                                Command="{Binding TodayCommand}"
+                                Style="{StaticResource SecondaryButtonStyle}"
+                                Margin="10,0,0,0" />
+                    </StackPanel>
+
+                    <ComboBox Grid.Column="1"
+                              Width="180"
+                              Margin="16,0,0,0"
+                              ItemsSource="{Binding CashierOptions}"
+                              SelectedItem="{Binding SelectedCashier}"
+                              DisplayMemberPath="Label"
+                              ToolTip="Filter by the user who received the payment"
+                              Visibility="{Binding CanFilterByCashier, Converter={StaticResource BooleanToVisibilityConverter}}" />
+
+                    <StackPanel Grid.Column="3" Orientation="Horizontal" VerticalAlignment="Center">
+                        <TextBlock Text="Page total" Style="{StaticResource CaptionStyle}" VerticalAlignment="Center" />
+                        <TextBlock Text="{Binding PageTotalLabel}"
+                                   Style="{StaticResource MetricValueStyle}"
+                                   FontSize="16"
+                                   Margin="8,0,0,0" />
+                    </StackPanel>
+                </Grid>
+
+                <StackPanel Grid.Row="2" Orientation="Horizontal" Margin="0,12,0,0">
+                    <Button Content="Register payment"
+                            Command="{Binding RegisterPaymentCommand}"
+                            Style="{StaticResource PrimaryButtonStyle}"
+                            MinWidth="160" />
+                    <Button Content="Open payment"
+                            Command="{Binding OpenDetailCommand}"
+                            Margin="10,0,0,0" />
+                    <Button Content="Receipt PDF"
+                            Command="{Binding PrintReceiptCommand}"
+                            Margin="10,0,0,0" />
+                    <Border Width="1" Margin="14,2" Background="{StaticResource BorderBrush}" />
+                    <Button Content="Export PDF" Command="{Binding ExportPdfCommand}" />
+                    <Button Content="Export Excel" Command="{Binding ExportExcelCommand}" Margin="10,0,0,0" />
+                    <Button Content="Refresh" Command="{Binding RefreshCommand}" Margin="10,0,0,0" />
+                </StackPanel>
+            </Grid>
+        </Border>
+
+        <Border Grid.Row="1" Style="{StaticResource CardStyle}" Padding="12">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="*" />
+                    <RowDefinition Height="Auto" />
+                </Grid.RowDefinitions>
+
+                <Grid Grid.Row="0">
+                    <DataGrid ItemsSource="{Binding Items}" SelectedItem="{Binding SelectedItem}">
+                        <DataGrid.InputBindings>
+                            <MouseBinding MouseAction="LeftDoubleClick" Command="{Binding OpenDetailCommand}" />
+                        </DataGrid.InputBindings>
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Header="Payment" Binding="{Binding PaymentNumber}" Width="140" />
+                            <DataGridTextColumn Header="Date" Binding="{Binding PaymentDate, StringFormat=d}" Width="100" />
+                            <DataGridTextColumn Header="Student" Binding="{Binding StudentName}" Width="*" />
+                            <DataGridTextColumn Header="Group" Binding="{Binding StudentGroupName}" Width="140" />
+                            <DataGridTextColumn Header="Type" Binding="{Binding PaymentTypeName}" Width="130" />
+                            <DataGridTextColumn Header="Period" Binding="{Binding PeriodLabel}" Width="140" />
+                            <DataGridTextColumn Header="Amount"
+                                                Binding="{Binding Amount, Converter={StaticResource MoneyConverter}}"
+                                                Width="130" />
+                            <DataGridTextColumn Header="Method"
+                                                Binding="{Binding PaymentMethod, Converter={StaticResource EnumDisplayConverter}}"
+                                                Width="120" />
+                            <DataGridTextColumn Header="Received by" Binding="{Binding ReceivedBy}" Width="140" />
+                            <DataGridTextColumn Header="Receipt" Binding="{Binding ReceiptNumber}" Width="130" />
+                            <DataGridTemplateColumn Header="Status" Width="110">
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <Border Style="{StaticResource StatusPillStyle}"
+                                                BorderBrush="{Binding Status, Converter={StaticResource StatusToBrushConverter}}">
+                                            <TextBlock Text="{Binding Status, Converter={StaticResource EnumDisplayConverter}}"
+                                                       FontSize="11"
+                                                       Foreground="{Binding Status, Converter={StaticResource StatusToBrushConverter}}" />
+                                        </Border>
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                            </DataGridTemplateColumn>
+                        </DataGrid.Columns>
+                    </DataGrid>
+
+                    <TextBlock Text="No payment matches these criteria."
+                               Style="{StaticResource EmptyStateStyle}"
+                               Visibility="{Binding Items.Count, Converter={StaticResource ZeroToVisibilityConverter}}" />
+                </Grid>
+
+                <controls:PagerControl Grid.Row="1" />
+            </Grid>
+        </Border>
+    </Grid>
+</UserControl>

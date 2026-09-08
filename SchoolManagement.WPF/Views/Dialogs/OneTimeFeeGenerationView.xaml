@@ -1,0 +1,90 @@
+﻿<UserControl x:Class="SchoolManagement.WPF.Views.Dialogs.OneTimeFeeGenerationView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:controls="clr-namespace:SchoolManagement.WPF.Views.Controls">
+
+    <StackPanel>
+        <TextBlock Text="{Binding BillingHint}"
+                   Style="{StaticResource CaptionStyle}"
+                   TextWrapping="Wrap"
+                   Margin="0,0,0,14" />
+
+        <TextBlock Text="Who to bill" Style="{StaticResource FieldLabelStyle}" />
+        <StackPanel Orientation="Horizontal" Margin="0,0,0,12">
+            <RadioButton Content="Entire group / all groups"
+                         IsChecked="{Binding BillEntireGroup}"
+                         GroupName="OneTimeBillTarget"
+                         Margin="0,0,18,0" />
+            <RadioButton Content="One student"
+                         IsChecked="{Binding BillSingleStudent}"
+                         GroupName="OneTimeBillTarget" />
+        </StackPanel>
+
+        <Grid Margin="0,0,0,8">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="16" />
+                <ColumnDefinition Width="*" />
+            </Grid.ColumnDefinitions>
+
+            <StackPanel Grid.Column="0">
+                <TextBlock Text="School year" Style="{StaticResource FieldLabelStyle}" />
+                <ComboBox ItemsSource="{Binding SchoolYears}"
+                          SelectedItem="{Binding SelectedSchoolYear}"
+                          DisplayMemberPath="DisplayName" />
+            </StackPanel>
+
+            <StackPanel Grid.Column="2"
+                        Visibility="{Binding BillEntireGroup, Converter={StaticResource BooleanToVisibilityConverter}}">
+                <TextBlock Text="Student group (empty bills every group)" Style="{StaticResource FieldLabelStyle}" />
+                <ComboBox ItemsSource="{Binding Classes}"
+                          SelectedItem="{Binding SelectedClass}"
+                          DisplayMemberPath="DisplayName" />
+            </StackPanel>
+        </Grid>
+
+        <controls:StudentPickerControl DataContext="{Binding Student}"
+                                       Visibility="{Binding DataContext.BillSingleStudent, RelativeSource={RelativeSource AncestorType=UserControl}, Converter={StaticResource BooleanToVisibilityConverter}}"
+                                       Margin="0,0,0,8" />
+
+        <Grid>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="16" />
+                <ColumnDefinition Width="*" />
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+            </Grid.RowDefinitions>
+
+            <StackPanel Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="3">
+                <TextBlock Text="Payment type" Style="{StaticResource FieldLabelStyle}" />
+                <ComboBox ItemsSource="{Binding PaymentTypes}"
+                          SelectedItem="{Binding SelectedPaymentType}"
+                          DisplayMemberPath="Name" />
+            </StackPanel>
+
+            <StackPanel Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="3" Margin="0,14,0,0">
+                <TextBlock Text="{Binding DescriptionLabel}" Style="{StaticResource FieldLabelStyle}" />
+                <TextBox Text="{Binding Description, UpdateSourceTrigger=PropertyChanged}" />
+            </StackPanel>
+
+            <StackPanel Grid.Row="2" Grid.Column="0" Margin="0,14,0,0">
+                <TextBlock Text="Amount per student" Style="{StaticResource FieldLabelStyle}" />
+                <TextBox Text="{Binding Amount, UpdateSourceTrigger=PropertyChanged}" />
+            </StackPanel>
+
+            <StackPanel Grid.Row="2" Grid.Column="2" Margin="0,14,0,0">
+                <TextBlock Text="Due date" Style="{StaticResource FieldLabelStyle}" />
+                <DatePicker SelectedDate="{Binding DueDate}" />
+            </StackPanel>
+        </Grid>
+
+        <CheckBox Content="Only students with an active enrolment"
+                  IsChecked="{Binding OnlyActiveStudents}"
+                  Margin="0,16,0,0"
+                  Visibility="{Binding BillEntireGroup, Converter={StaticResource BooleanToVisibilityConverter}}" />
+    </StackPanel>
+</UserControl>

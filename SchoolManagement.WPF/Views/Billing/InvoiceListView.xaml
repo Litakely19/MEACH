@@ -1,0 +1,153 @@
+<UserControl x:Class="SchoolManagement.WPF.Views.Billing.InvoiceListView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:controls="clr-namespace:SchoolManagement.WPF.Views.Controls">
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+
+        <Border Grid.Row="0" Style="{StaticResource ToolbarPanelStyle}" Margin="0,0,0,12">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                </Grid.RowDefinitions>
+
+                <Grid Grid.Row="0">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+
+                    <TextBox Grid.Column="0"
+                             MinWidth="220"
+                             Text="{Binding SearchTerm, UpdateSourceTrigger=PropertyChanged}"
+                             ToolTip="Search by invoice number, student name or student number">
+                        <TextBox.InputBindings>
+                            <KeyBinding Key="Return" Command="{Binding SearchCommand}" />
+                        </TextBox.InputBindings>
+                    </TextBox>
+
+                    <ComboBox Grid.Column="1"
+                              Width="170"
+                              Margin="10,0,0,0"
+                              ItemsSource="{Binding SchoolYearOptions}"
+                              SelectedItem="{Binding SelectedSchoolYear}"
+                              DisplayMemberPath="Label" />
+
+                    <ComboBox Grid.Column="2"
+                              Width="150"
+                              Margin="10,0,0,0"
+                              ItemsSource="{Binding ClassOptions}"
+                              SelectedItem="{Binding SelectedClass}"
+                              DisplayMemberPath="Label" />
+
+                    <ComboBox Grid.Column="3"
+                              Width="140"
+                              Margin="10,0,0,0"
+                              ItemsSource="{Binding StatusOptions}"
+                              SelectedItem="{Binding SelectedStatus}"
+                              DisplayMemberPath="Label" />
+
+                    <StackPanel Grid.Column="4" Orientation="Horizontal" Margin="10,0,0,0">
+                        <TextBlock Text="Issued" Style="{StaticResource CaptionStyle}" VerticalAlignment="Center" />
+                        <DatePicker Width="120" Margin="8,0,0,0" SelectedDate="{Binding IssuedFrom}" />
+                        <TextBlock Text="to" Style="{StaticResource CaptionStyle}" VerticalAlignment="Center" Margin="8,0" />
+                        <DatePicker Width="120" SelectedDate="{Binding IssuedTo}" />
+                    </StackPanel>
+
+                    <Button Grid.Column="5"
+                            Content="Search"
+                            Margin="10,0,0,0"
+                            Command="{Binding SearchCommand}"
+                            Style="{StaticResource SecondaryButtonStyle}" />
+                </Grid>
+
+                <StackPanel Grid.Row="1" Orientation="Horizontal" Margin="0,12,0,0">
+                    <Button Content="New invoice"
+                            Command="{Binding CreateCommand}"
+                            Style="{StaticResource PrimaryButtonStyle}"
+                            MinWidth="140" />
+                    <Button Content="Open invoice"
+                            Command="{Binding OpenDetailCommand}"
+                            Margin="10,0,0,0" />
+                    <Button Content="Register payment"
+                            Command="{Binding RegisterPaymentCommand}"
+                            Style="{StaticResource AccentButtonStyle}"
+                            Margin="10,0,0,0"
+                            MinWidth="150" />
+                    <Button Content="Export PDF"
+                            Command="{Binding ExportPdfCommand}"
+                            Margin="10,0,0,0" />
+                    <Button Content="Cancel invoice"
+                            Command="{Binding CancelInvoiceCommand}"
+                            Style="{StaticResource DangerButtonStyle}"
+                            Margin="10,0,0,0" />
+                    <Button Content="Refresh"
+                            Command="{Binding RefreshCommand}"
+                            Margin="10,0,0,0" />
+                </StackPanel>
+            </Grid>
+        </Border>
+
+        <Border Grid.Row="1" Style="{StaticResource CardStyle}" Padding="12">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="*" />
+                    <RowDefinition Height="Auto" />
+                </Grid.RowDefinitions>
+
+                <Grid Grid.Row="0">
+                    <DataGrid ItemsSource="{Binding Items}" SelectedItem="{Binding SelectedItem}">
+                        <DataGrid.InputBindings>
+                            <MouseBinding MouseAction="LeftDoubleClick" Command="{Binding OpenDetailCommand}" />
+                        </DataGrid.InputBindings>
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Header="Invoice" Binding="{Binding InvoiceNumber}" Width="140" />
+                            <DataGridTextColumn Header="Student number" Binding="{Binding StudentNumber}" Width="120" />
+                            <DataGridTextColumn Header="Student" Binding="{Binding StudentName}" Width="*" />
+                            <DataGridTextColumn Header="Class" Binding="{Binding ClassName}" Width="110" />
+                            <DataGridTextColumn Header="Issued" Binding="{Binding IssueDate, StringFormat=d}" Width="100" />
+                            <DataGridTextColumn Header="Due" Binding="{Binding DueDate, StringFormat=d}" Width="100" />
+                            <DataGridTextColumn Header="Total"
+                                                Binding="{Binding TotalAmount, Converter={StaticResource MoneyConverter}}"
+                                                Width="130" />
+                            <DataGridTextColumn Header="Paid"
+                                                Binding="{Binding PaidAmount, Converter={StaticResource MoneyConverter}}"
+                                                Width="130" />
+                            <DataGridTextColumn Header="Remaining"
+                                                Binding="{Binding RemainingAmount, Converter={StaticResource MoneyConverter}}"
+                                                Width="130" />
+                            <DataGridTemplateColumn Header="Status" Width="120">
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <Border Style="{StaticResource StatusPillStyle}"
+                                                BorderBrush="{Binding Status, Converter={StaticResource StatusToBrushConverter}}">
+                                            <TextBlock Text="{Binding Status, Converter={StaticResource EnumDisplayConverter}}"
+                                                       FontSize="11"
+                                                       Foreground="{Binding Status, Converter={StaticResource StatusToBrushConverter}}" />
+                                        </Border>
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                            </DataGridTemplateColumn>
+                            <DataGridTextColumn Header="Created by" Binding="{Binding CreatedBy}" Width="140" />
+                        </DataGrid.Columns>
+                    </DataGrid>
+
+                    <TextBlock Text="No invoice matches these criteria."
+                               Style="{StaticResource EmptyStateStyle}"
+                               Visibility="{Binding Items.Count, Converter={StaticResource ZeroToVisibilityConverter}}" />
+                </Grid>
+
+                <controls:PagerControl Grid.Row="1" />
+            </Grid>
+        </Border>
+    </Grid>
+</UserControl>

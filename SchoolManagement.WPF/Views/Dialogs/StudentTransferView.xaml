@@ -1,0 +1,38 @@
+<UserControl x:Class="SchoolManagement.WPF.Views.Dialogs.StudentTransferView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+    <StackPanel>
+        <Border Background="{StaticResource SurfaceAltBrush}"
+                BorderBrush="{StaticResource BorderBrush}"
+                BorderThickness="1"
+                CornerRadius="4"
+                Padding="12,10">
+            <StackPanel>
+                <TextBlock Text="{Binding StudentName}" FontWeight="SemiBold" />
+                <TextBlock Style="{StaticResource CaptionStyle}" Margin="0,4,0,0">
+                    <Run Text="Current class:" />
+                    <Run Text="{Binding CurrentClassName, Mode=OneWay}" />
+                </TextBlock>
+            </StackPanel>
+        </Border>
+
+        <TextBlock Text="Destination class" Style="{StaticResource FieldLabelStyle}" Margin="0,16,0,4" />
+        <ComboBox ItemsSource="{Binding Classes}"
+                  SelectedItem="{Binding TargetClass}"
+                  DisplayMemberPath="DisplayName" />
+
+        <TextBlock Text="Reason (optional)" Style="{StaticResource FieldLabelStyle}" Margin="0,14,0,4" />
+        <TextBox Text="{Binding Reason, UpdateSourceTrigger=PropertyChanged}"
+                 MaxLength="250"
+                 AcceptsReturn="True"
+                 Height="60"
+                 TextWrapping="Wrap"
+                 VerticalContentAlignment="Top" />
+
+        <TextBlock Text="The transfer is recorded in the audit log. Invoices already issued stay attached to the student."
+                   Style="{StaticResource CaptionStyle}"
+                   TextWrapping="Wrap"
+                   Margin="0,12,0,0" />
+    </StackPanel>
+</UserControl>

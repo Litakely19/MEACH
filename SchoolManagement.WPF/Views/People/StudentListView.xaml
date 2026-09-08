@@ -1,0 +1,156 @@
+<UserControl x:Class="SchoolManagement.WPF.Views.People.StudentListView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:controls="clr-namespace:SchoolManagement.WPF.Views.Controls">
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+
+        <!-- Search, filters and actions -->
+        <Border Grid.Row="0" Style="{StaticResource ToolbarPanelStyle}" Margin="0,0,0,12">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                </Grid.RowDefinitions>
+
+                <Grid Grid.Row="0">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+
+                    <TextBox Grid.Column="0"
+                             MinWidth="240"
+                             Text="{Binding SearchTerm, UpdateSourceTrigger=PropertyChanged}"
+                             ToolTip="Search by first name, last name, full name or student number">
+                        <TextBox.InputBindings>
+                            <KeyBinding Key="Return" Command="{Binding SearchCommand}" />
+                        </TextBox.InputBindings>
+                    </TextBox>
+
+                    <ComboBox Grid.Column="1"
+                              Width="150"
+                              Margin="10,0,0,0"
+                              ItemsSource="{Binding LevelOptions}"
+                              SelectedItem="{Binding SelectedLevel}"
+                              DisplayMemberPath="Label" />
+
+                    <ComboBox Grid.Column="2"
+                              Width="180"
+                              Margin="10,0,0,0"
+                              ItemsSource="{Binding ClassOptions}"
+                              SelectedItem="{Binding SelectedClass}"
+                              DisplayMemberPath="Label" />
+
+                    <ComboBox Grid.Column="3"
+                              Width="150"
+                              Margin="10,0,0,0"
+                              ItemsSource="{Binding StatusOptions}"
+                              SelectedItem="{Binding SelectedStatus}"
+                              DisplayMemberPath="Label" />
+
+                    <Button Grid.Column="4"
+                            Content="Search"
+                            Margin="10,0,0,0"
+                            Command="{Binding SearchCommand}"
+                            Style="{StaticResource SecondaryButtonStyle}" />
+                </Grid>
+
+                <StackPanel Grid.Row="1" Orientation="Horizontal" Margin="0,12,0,0">
+                    <Button Content="New student"
+                            Command="{Binding CreateCommand}"
+                            Style="{StaticResource PrimaryButtonStyle}"
+                            MinWidth="130" />
+                    <Button Content="Open file"
+                            Command="{Binding OpenDetailCommand}"
+                            Margin="10,0,0,0" />
+                    <Button Content="Edit"
+                            Command="{Binding EditCommand}"
+                            Margin="10,0,0,0" />
+                    <Button Content="Create bill"
+                            Margin="10,0,0,0"
+                            Style="{StaticResource AccentButtonStyle}"
+                            MinWidth="120"
+                            Click="CreateBillButton_OnClick"
+                            Visibility="{Binding CanManageFees, Converter={StaticResource BooleanToVisibilityConverter}}">
+                        <Button.ContextMenu>
+                            <ContextMenu DataContext="{Binding Path=PlacementTarget.DataContext, RelativeSource={RelativeSource Self}}">
+                                <ContextMenu.ItemsSource>
+                                    <Binding Path="BillMenuItems" />
+                                </ContextMenu.ItemsSource>
+                                <ContextMenu.ItemContainerStyle>
+                                    <Style TargetType="MenuItem">
+                                        <Setter Property="Header" Value="{Binding Label}" />
+                                        <Setter Property="Command"
+                                                Value="{Binding DataContext.BillCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}" />
+                                        <Setter Property="CommandParameter" Value="{Binding}" />
+                                    </Style>
+                                </ContextMenu.ItemContainerStyle>
+                            </ContextMenu>
+                        </Button.ContextMenu>
+                    </Button>
+                    <Button Content="Transfer"
+                            Command="{Binding TransferCommand}"
+                            Margin="10,0,0,0" />
+                    <Button Content="Archive"
+                            Command="{Binding DeleteCommand}"
+                            Style="{StaticResource DangerButtonStyle}"
+                            Margin="10,0,0,0" />
+                </StackPanel>
+            </Grid>
+        </Border>
+
+        <!-- Results -->
+        <Border Grid.Row="1" Style="{StaticResource CardStyle}" Padding="12">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="*" />
+                    <RowDefinition Height="Auto" />
+                </Grid.RowDefinitions>
+
+                <Grid Grid.Row="0">
+                    <DataGrid ItemsSource="{Binding Items}" SelectedItem="{Binding SelectedItem}">
+                        <DataGrid.InputBindings>
+                            <MouseBinding MouseAction="LeftDoubleClick" Command="{Binding OpenDetailCommand}" />
+                        </DataGrid.InputBindings>
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Header="Number" Binding="{Binding StudentNumber}" Width="130" />
+                            <DataGridTextColumn Header="Name" Binding="{Binding FullName}" Width="*" />
+                            <DataGridTextColumn Header="Level" Binding="{Binding AcademicLevelName}" Width="80" />
+                            <DataGridTextColumn Header="Group" Binding="{Binding StudentGroupName}" Width="160" />
+                            <DataGridTextColumn Header="Phone" Binding="{Binding PhoneNumber}" Width="120" />
+                            <DataGridTextColumn Header="Outstanding"
+                                                Binding="{Binding OutstandingBalance, Converter={StaticResource MoneyConverter}}"
+                                                Width="140" />
+                            <DataGridTemplateColumn Header="Status" Width="120">
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <Border Style="{StaticResource StatusPillStyle}"
+                                                BorderBrush="{Binding Status, Converter={StaticResource StatusToBrushConverter}}">
+                                            <TextBlock Text="{Binding Status, Converter={StaticResource EnumDisplayConverter}}"
+                                                       FontSize="11"
+                                                       Foreground="{Binding Status, Converter={StaticResource StatusToBrushConverter}}" />
+                                        </Border>
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                            </DataGridTemplateColumn>
+                        </DataGrid.Columns>
+                    </DataGrid>
+
+                    <TextBlock Text="No student matches these criteria."
+                               Style="{StaticResource EmptyStateStyle}"
+                               Visibility="{Binding Items.Count, Converter={StaticResource ZeroToVisibilityConverter}}" />
+                </Grid>
+
+                <controls:PagerControl Grid.Row="1" />
+            </Grid>
+        </Border>
+    </Grid>
+</UserControl>

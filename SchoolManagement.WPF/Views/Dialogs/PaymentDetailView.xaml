@@ -1,0 +1,105 @@
+<UserControl x:Class="SchoolManagement.WPF.Views.Dialogs.PaymentDetailView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+    <StackPanel>
+        <Border Style="{StaticResource WarningBannerStyle}"
+                Margin="0,0,0,14"
+                Visibility="{Binding IsCancelled, Converter={StaticResource BooleanToVisibilityConverter}}">
+            <StackPanel>
+                <TextBlock FontWeight="SemiBold">
+                    <Run Text="This payment is" />
+                    <Run Text="{Binding Payment.Status, Mode=OneWay, Converter={StaticResource EnumDisplayConverter}}" />
+                </TextBlock>
+                <TextBlock Text="{Binding Payment.CancellationReason}" TextWrapping="Wrap" Margin="0,4,0,0" />
+                <TextBlock Style="{StaticResource CaptionStyle}" Margin="0,4,0,0">
+                    <Run Text="By" />
+                    <Run Text="{Binding Payment.CancelledBy, Mode=OneWay}" />
+                    <Run Text="on" />
+                    <Run Text="{Binding Payment.CancelledAt, Mode=OneWay, StringFormat=g}" />
+                </TextBlock>
+            </StackPanel>
+        </Border>
+
+        <Grid>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="16" />
+                <ColumnDefinition Width="*" />
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+            </Grid.RowDefinitions>
+
+            <StackPanel Grid.Row="0" Grid.Column="0">
+                <TextBlock Text="Student" Style="{StaticResource FieldLabelStyle}" />
+                <TextBlock Text="{Binding Payment.StudentName}" FontWeight="SemiBold" />
+                <TextBlock Style="{StaticResource CaptionStyle}">
+                    <Run Text="{Binding Payment.StudentNumber, Mode=OneWay}" />
+                    <Run Text=" - " />
+                    <Run Text="{Binding Payment.AcademicLevelName, Mode=OneWay}" />
+                    <Run Text=" / " />
+                    <Run Text="{Binding Payment.StudentGroupName, Mode=OneWay}" />
+                </TextBlock>
+            </StackPanel>
+
+            <StackPanel Grid.Row="0" Grid.Column="2">
+                <TextBlock Text="Amount" Style="{StaticResource FieldLabelStyle}" />
+                <TextBlock Text="{Binding Payment.Amount, Converter={StaticResource MoneyConverter}}"
+                           Style="{StaticResource MetricValueStyle}"
+                           FontSize="20" />
+            </StackPanel>
+
+            <StackPanel Grid.Row="1" Grid.Column="0" Margin="0,14,0,0">
+                <TextBlock Text="Payment type" Style="{StaticResource FieldLabelStyle}" />
+                <TextBlock Text="{Binding Payment.PaymentTypeName}" />
+
+                <TextBlock Text="Period" Style="{StaticResource FieldLabelStyle}" Margin="0,12,0,0" />
+                <TextBlock Text="{Binding Payment.PeriodLabel}" />
+
+                <TextBlock Text="Payment date" Style="{StaticResource FieldLabelStyle}" Margin="0,12,0,0" />
+                <TextBlock Text="{Binding Payment.PaymentDate, StringFormat=D}" />
+
+                <TextBlock Text="Received by" Style="{StaticResource FieldLabelStyle}" Margin="0,12,0,0" />
+                <TextBlock Text="{Binding Payment.ReceivedBy}" />
+            </StackPanel>
+
+            <StackPanel Grid.Row="1" Grid.Column="2" Margin="0,14,0,0">
+                <TextBlock Text="Payment method" Style="{StaticResource FieldLabelStyle}" />
+                <TextBlock Text="{Binding Payment.PaymentMethod, Converter={StaticResource EnumDisplayConverter}}" />
+
+                <TextBlock Text="Reference" Style="{StaticResource FieldLabelStyle}" Margin="0,12,0,0" />
+                <TextBlock Text="{Binding Payment.Reference, TargetNullValue=-}" />
+
+                <TextBlock Text="Receipt" Style="{StaticResource FieldLabelStyle}" Margin="0,12,0,0" />
+                <TextBlock Text="{Binding Payment.ReceiptNumber, TargetNullValue=None}" />
+            </StackPanel>
+
+            <StackPanel Grid.Row="2" Grid.ColumnSpan="3" Margin="0,14,0,0"
+                        Visibility="{Binding Payment.Notes, Converter={StaticResource NullToVisibilityConverter}}">
+                <TextBlock Text="Notes" Style="{StaticResource FieldLabelStyle}" />
+                <TextBlock Text="{Binding Payment.Notes}" TextWrapping="Wrap" />
+            </StackPanel>
+        </Grid>
+
+        <StackPanel Orientation="Horizontal" Margin="0,16,0,0">
+            <Button Content="Print receipt"
+                    Command="{Binding PrintReceiptCommand}"
+                    Style="{StaticResource SecondaryButtonStyle}"
+                    MinWidth="140" />
+            <Button Content="Export receipt"
+                    Command="{Binding ExportReceiptCommand}"
+                    Margin="10,0,0,0" />
+            <Button Content="Cancel payment"
+                    Command="{Binding CancelPaymentCommand}"
+                    Style="{StaticResource DangerButtonStyle}"
+                    Margin="10,0,0,0" />
+            <Button Content="Reverse payment"
+                    Command="{Binding ReversePaymentCommand}"
+                    Style="{StaticResource DangerButtonStyle}"
+                    Margin="10,0,0,0" />
+        </StackPanel>
+    </StackPanel>
+</UserControl>

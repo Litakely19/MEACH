@@ -1,0 +1,259 @@
+<UserControl x:Class="SchoolManagement.WPF.Views.People.StudentDetailView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+
+        <!-- Header: identity and balance -->
+        <Border Grid.Row="0" Style="{StaticResource CardStyle}" Margin="0,0,0,12">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+
+                <StackPanel Grid.Column="0">
+                    <TextBlock Text="{Binding Student.FullName}" Style="{StaticResource PageTitleStyle}" />
+                    <TextBlock Style="{StaticResource PageSubtitleStyle}" Margin="0,4,0,0">
+                        <Run Text="{Binding Student.StudentNumber, Mode=OneWay}" />
+                        <Run Text=" | " />
+                        <Run Text="{Binding Student.AcademicLevelName, Mode=OneWay}" />
+                        <Run Text=" | " />
+                        <Run Text="{Binding Student.StudentGroupName, Mode=OneWay}" />
+                    </TextBlock>
+                    <StackPanel Orientation="Horizontal" Margin="0,14,0,0">
+                        <Button Content="Back to the list" Command="{Binding BackCommand}" />
+                        <Button Content="Edit" Command="{Binding EditCommand}" Margin="10,0,0,0" />
+                        <Button Content="Register a payment"
+                                Command="{Binding RegisterPaymentCommand}"
+                                Style="{StaticResource AccentButtonStyle}"
+                                MinWidth="150"
+                                Margin="10,0,0,0" />
+                    </StackPanel>
+                </StackPanel>
+
+                <StackPanel Grid.Column="1" HorizontalAlignment="Right">
+                    <TextBlock Text="Outstanding balance" Style="{StaticResource CaptionStyle}" HorizontalAlignment="Right" />
+                    <TextBlock Text="{Binding Student.OutstandingBalance, Converter={StaticResource MoneyConverter}}"
+                               Style="{StaticResource MetricValueStyle}"
+                               Foreground="{StaticResource WarningBrush}"
+                               HorizontalAlignment="Right"
+                               Margin="0,4,0,0" />
+                    <TextBlock Style="{StaticResource CaptionStyle}" HorizontalAlignment="Right">
+                        <Run Text="Billed" />
+                        <Run Text="{Binding Student.TotalExpected, Mode=OneWay, Converter={StaticResource MoneyConverter}}" />
+                        <Run Text=" - paid" />
+                        <Run Text="{Binding Student.TotalPaid, Mode=OneWay, Converter={StaticResource MoneyConverter}}" />
+                    </TextBlock>
+                </StackPanel>
+            </Grid>
+        </Border>
+
+        <!-- Student information -->
+        <Border Grid.Row="1" Style="{StaticResource CardStyle}" Margin="0,0,0,12">
+            <StackPanel>
+                <TextBlock Text="Student information" Style="{StaticResource SectionTitleStyle}" />
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="140" />
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="24" />
+                        <ColumnDefinition Width="140" />
+                        <ColumnDefinition Width="*" />
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                    </Grid.RowDefinitions>
+
+                    <TextBlock Grid.Row="0" Grid.Column="0" Text="Gender" Style="{StaticResource FieldLabelStyle}" />
+                    <TextBlock Grid.Row="0" Grid.Column="1"
+                               Text="{Binding Student.Gender, Converter={StaticResource EnumDisplayConverter}}" />
+
+                    <TextBlock Grid.Row="0" Grid.Column="3" Text="Date of birth" Style="{StaticResource FieldLabelStyle}" />
+                    <TextBlock Grid.Row="0" Grid.Column="4" Text="{Binding Student.DateOfBirth, StringFormat=d}" />
+
+                    <TextBlock Grid.Row="1" Grid.Column="0" Text="Phone" Style="{StaticResource FieldLabelStyle}" />
+                    <TextBlock Grid.Row="1" Grid.Column="1" Text="{Binding Student.PhoneNumber}" />
+
+                    <TextBlock Grid.Row="1" Grid.Column="3" Text="Email" Style="{StaticResource FieldLabelStyle}" />
+                    <TextBlock Grid.Row="1" Grid.Column="4" Text="{Binding Student.Email}" />
+
+                    <TextBlock Grid.Row="2" Grid.Column="0" Text="Address" Style="{StaticResource FieldLabelStyle}" />
+                    <TextBlock Grid.Row="2" Grid.Column="1" Text="{Binding Student.Address}" TextWrapping="Wrap" />
+
+                    <TextBlock Grid.Row="2" Grid.Column="3" Text="Status" Style="{StaticResource FieldLabelStyle}" />
+                    <TextBlock Grid.Row="2" Grid.Column="4"
+                               Text="{Binding Student.Status, Converter={StaticResource EnumDisplayConverter}}"
+                               Foreground="{Binding Student.Status, Converter={StaticResource StatusToBrushConverter}}"
+                               FontWeight="SemiBold" />
+                </Grid>
+            </StackPanel>
+        </Border>
+
+        <!-- Detail tabs -->
+        <Border Grid.Row="2" Style="{StaticResource CardStyle}" Padding="12">
+            <TabControl Background="Transparent" BorderThickness="0">
+                <TabItem Header="Schedule">
+                    <DataGrid ItemsSource="{Binding Student.Schedule}" Margin="0,10,0,0">
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Header="Day" Binding="{Binding DayOfWeek, Converter={StaticResource EnumDisplayConverter}}" Width="*" />
+                            <DataGridTextColumn Header="Session" Binding="{Binding SessionLabel}" Width="180" />
+                        </DataGrid.Columns>
+                    </DataGrid>
+                </TabItem>
+
+                <TabItem Header="Attendance">
+                    <StackPanel Margin="0,10,0,0">
+                        <WrapPanel>
+                            <StackPanel Margin="0,0,28,12">
+                                <TextBlock Text="Sessions" Style="{StaticResource CaptionStyle}" />
+                                <TextBlock Text="{Binding Student.Attendance.TotalSessions}" Style="{StaticResource MetricValueStyle}" />
+                            </StackPanel>
+                            <StackPanel Margin="0,0,28,12">
+                                <TextBlock Text="Present" Style="{StaticResource CaptionStyle}" />
+                                <TextBlock Text="{Binding Student.Attendance.Present}" Style="{StaticResource MetricValueStyle}" />
+                            </StackPanel>
+                            <StackPanel Margin="0,0,28,12">
+                                <TextBlock Text="Absent" Style="{StaticResource CaptionStyle}" />
+                                <TextBlock Text="{Binding Student.Attendance.Absent}" Style="{StaticResource MetricValueStyle}" />
+                            </StackPanel>
+                            <StackPanel Margin="0,0,28,12">
+                                <TextBlock Text="Late" Style="{StaticResource CaptionStyle}" />
+                                <TextBlock Text="{Binding Student.Attendance.Late}" Style="{StaticResource MetricValueStyle}" />
+                            </StackPanel>
+                            <StackPanel Margin="0,0,28,12">
+                                <TextBlock Text="Excused" Style="{StaticResource CaptionStyle}" />
+                                <TextBlock Text="{Binding Student.Attendance.Excused}" Style="{StaticResource MetricValueStyle}" />
+                            </StackPanel>
+                            <StackPanel Margin="0,0,28,12">
+                                <TextBlock Text="Attendance %" Style="{StaticResource CaptionStyle}" />
+                                <TextBlock Text="{Binding Student.Attendance.AttendancePercentage}" Style="{StaticResource MetricValueStyle}" />
+                            </StackPanel>
+                        </WrapPanel>
+                    </StackPanel>
+                </TabItem>
+
+                <TabItem Header="Monthly scholar fees">
+                    <DataGrid ItemsSource="{Binding MonthlyFees}" Margin="0,10,0,0">
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Header="Period" Binding="{Binding PeriodLabel}" Width="150" />
+                            <DataGridTextColumn Header="Expected"
+                                                Binding="{Binding ExpectedAmount, Converter={StaticResource MoneyConverter}}"
+                                                Width="140" />
+                            <DataGridTextColumn Header="Paid"
+                                                Binding="{Binding PaidAmount, Converter={StaticResource MoneyConverter}}"
+                                                Width="140" />
+                            <DataGridTextColumn Header="Remaining"
+                                                Binding="{Binding RemainingAmount, Converter={StaticResource MoneyConverter}}"
+                                                Width="140" />
+                            <DataGridTextColumn Header="Due date" Binding="{Binding DueDate, StringFormat=d}" Width="110" />
+                            <DataGridTemplateColumn Header="Status" Width="*">
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <TextBlock Text="{Binding Status, Converter={StaticResource EnumDisplayConverter}}"
+                                                   Foreground="{Binding Status, Converter={StaticResource StatusToBrushConverter}}"
+                                                   FontWeight="SemiBold" />
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                            </DataGridTemplateColumn>
+                        </DataGrid.Columns>
+                    </DataGrid>
+                </TabItem>
+
+                <TabItem Header="Fees">
+                    <Grid Margin="0,10,0,0">
+                        <DataGrid ItemsSource="{Binding Fees}"
+                                  SelectedItem="{Binding SelectedFee}">
+                            <DataGrid.Columns>
+                                <DataGridTextColumn Header="Type / period" Binding="{Binding PeriodLabel}" Width="*" />
+                                <DataGridTextColumn Header="Due" Binding="{Binding DueDate, StringFormat=d}" Width="100" />
+                                <DataGridTextColumn Header="Expected"
+                                                    Binding="{Binding ExpectedAmount, Converter={StaticResource MoneyConverter}}"
+                                                    Width="140" />
+                                <DataGridTextColumn Header="Paid"
+                                                    Binding="{Binding PaidAmount, Converter={StaticResource MoneyConverter}}"
+                                                    Width="140" />
+                                <DataGridTextColumn Header="Remaining"
+                                                    Binding="{Binding RemainingAmount, Converter={StaticResource MoneyConverter}}"
+                                                    Width="140" />
+                                <DataGridTemplateColumn Header="Status" Width="120">
+                                    <DataGridTemplateColumn.CellTemplate>
+                                        <DataTemplate>
+                                            <TextBlock Text="{Binding Status, Converter={StaticResource EnumDisplayConverter}}"
+                                                       Foreground="{Binding Status, Converter={StaticResource StatusToBrushConverter}}"
+                                                       FontWeight="SemiBold" />
+                                        </DataTemplate>
+                                    </DataGridTemplateColumn.CellTemplate>
+                                </DataGridTemplateColumn>
+                            </DataGrid.Columns>
+                        </DataGrid>
+                    </Grid>
+                </TabItem>
+
+                <TabItem Header="Payments">
+                    <Grid Margin="0,10,0,0">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="*" />
+                        </Grid.RowDefinitions>
+
+                        <Button Grid.Row="0"
+                                Content="Open the payment"
+                                Command="{Binding OpenPaymentCommand}"
+                                HorizontalAlignment="Left"
+                                Margin="0,0,0,10" />
+
+                        <DataGrid Grid.Row="1"
+                                  ItemsSource="{Binding Payments}"
+                                  SelectedItem="{Binding SelectedPayment}">
+                            <DataGrid.InputBindings>
+                                <MouseBinding MouseAction="LeftDoubleClick" Command="{Binding OpenPaymentCommand}" />
+                            </DataGrid.InputBindings>
+                            <DataGrid.Columns>
+                                <DataGridTextColumn Header="Payment" Binding="{Binding PaymentNumber}" Width="150" />
+                                <DataGridTextColumn Header="Date" Binding="{Binding PaymentDate, StringFormat=d}" Width="100" />
+                                <DataGridTextColumn Header="Amount"
+                                                    Binding="{Binding Amount, Converter={StaticResource MoneyConverter}}"
+                                                    Width="140" />
+                                <DataGridTextColumn Header="Method"
+                                                    Binding="{Binding PaymentMethod, Converter={StaticResource EnumDisplayConverter}}"
+                                                    Width="130" />
+                                <DataGridTextColumn Header="Receipt" Binding="{Binding ReceiptNumber}" Width="150" />
+                                <DataGridTextColumn Header="Received by" Binding="{Binding ReceivedBy}" Width="*" />
+                                <DataGridTemplateColumn Header="Status" Width="120">
+                                    <DataGridTemplateColumn.CellTemplate>
+                                        <DataTemplate>
+                                            <TextBlock Text="{Binding Status, Converter={StaticResource EnumDisplayConverter}}"
+                                                       Foreground="{Binding Status, Converter={StaticResource StatusToBrushConverter}}"
+                                                       FontWeight="SemiBold" />
+                                        </DataTemplate>
+                                    </DataGridTemplateColumn.CellTemplate>
+                                </DataGridTemplateColumn>
+                            </DataGrid.Columns>
+                        </DataGrid>
+                    </Grid>
+                </TabItem>
+
+                <TabItem Header="Receipts">
+                    <DataGrid ItemsSource="{Binding Receipts}" Margin="0,10,0,0">
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Header="Receipt" Binding="{Binding ReceiptNumber}" Width="170" />
+                            <DataGridTextColumn Header="Issued" Binding="{Binding IssueDate, StringFormat=d}" Width="110" />
+                            <DataGridTextColumn Header="Amount"
+                                                Binding="{Binding Amount, Converter={StaticResource MoneyConverter}}"
+                                                Width="150" />
+                            <DataGridTextColumn Header="Payment" Binding="{Binding PaymentNumber}" Width="*" />
+                        </DataGrid.Columns>
+                    </DataGrid>
+                </TabItem>
+            </TabControl>
+        </Border>
+    </Grid>
+</UserControl>

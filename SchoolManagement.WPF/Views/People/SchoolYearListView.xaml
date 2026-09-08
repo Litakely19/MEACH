@@ -1,0 +1,76 @@
+<UserControl x:Class="SchoolManagement.WPF.Views.People.SchoolYearListView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+
+        <Border Grid.Row="0" Style="{StaticResource ToolbarPanelStyle}" Margin="0,0,0,12">
+            <StackPanel Orientation="Horizontal">
+                <Button Content="New school year"
+                        Command="{Binding CreateCommand}"
+                        Style="{StaticResource PrimaryButtonStyle}"
+                        MinWidth="150" />
+                <Button Content="Edit" Command="{Binding EditCommand}" Margin="10,0,0,0" />
+                <Button Content="Set as current" Command="{Binding SetCurrentCommand}" MinWidth="130" Margin="10,0,0,0" />
+                <Button Content="Close the year"
+                        Command="{Binding CloseYearCommand}"
+                        Style="{StaticResource DangerButtonStyle}"
+                        MinWidth="130"
+                        Margin="10,0,0,0" />
+                <Button Content="Reopen" Command="{Binding ReopenYearCommand}" Margin="10,0,0,0" />
+            </StackPanel>
+        </Border>
+
+        <Border Grid.Row="1" Style="{StaticResource CardStyle}" Padding="12">
+            <Grid>
+                <DataGrid ItemsSource="{Binding SchoolYears}" SelectedItem="{Binding SelectedYear}">
+                    <DataGrid.Columns>
+                        <DataGridTextColumn Header="School year" Binding="{Binding Name}" Width="150" />
+                        <DataGridTextColumn Header="Start" Binding="{Binding StartDate, StringFormat=d}" Width="110" />
+                        <DataGridTextColumn Header="End" Binding="{Binding EndDate, StringFormat=d}" Width="110" />
+                        <DataGridTextColumn Header="Classes" Binding="{Binding ClassCount}" Width="90" />
+                        <DataGridTextColumn Header="Students" Binding="{Binding StudentCount}" Width="90" />
+                        <DataGridTemplateColumn Header="Current" Width="100">
+                            <DataGridTemplateColumn.CellTemplate>
+                                <DataTemplate>
+                                    <TextBlock Text="Current"
+                                               FontWeight="SemiBold"
+                                               Foreground="{StaticResource SuccessBrush}"
+                                               Visibility="{Binding IsCurrent, Converter={StaticResource BooleanToVisibilityConverter}}" />
+                                </DataTemplate>
+                            </DataGridTemplateColumn.CellTemplate>
+                        </DataGridTemplateColumn>
+                        <DataGridTemplateColumn Header="State" Width="*">
+                            <DataGridTemplateColumn.CellTemplate>
+                                <DataTemplate>
+                                    <TextBlock FontWeight="SemiBold">
+                                        <TextBlock.Style>
+                                            <Style TargetType="TextBlock" BasedOn="{StaticResource BaseTextStyle}">
+                                                <Setter Property="Text" Value="Open" />
+                                                <Setter Property="Foreground" Value="{StaticResource SuccessBrush}" />
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding IsClosed}" Value="True">
+                                                        <Setter Property="Text" Value="Closed" />
+                                                        <Setter Property="Foreground" Value="{StaticResource DangerBrush}" />
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </TextBlock.Style>
+                                    </TextBlock>
+                                </DataTemplate>
+                            </DataGridTemplateColumn.CellTemplate>
+                        </DataGridTemplateColumn>
+                    </DataGrid.Columns>
+                </DataGrid>
+
+                <TextBlock Text="No school year has been created yet."
+                           Style="{StaticResource EmptyStateStyle}"
+                           Visibility="{Binding SchoolYears.Count, Converter={StaticResource ZeroToVisibilityConverter}}" />
+            </Grid>
+        </Border>
+    </Grid>
+</UserControl>

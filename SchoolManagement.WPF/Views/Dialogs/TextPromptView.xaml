@@ -1,0 +1,15 @@
+<UserControl x:Class="SchoolManagement.WPF.Views.Dialogs.TextPromptView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+    <StackPanel>
+        <TextBlock Text="{Binding Message}" TextWrapping="Wrap" />
+        <TextBox Text="{Binding Value, UpdateSourceTrigger=PropertyChanged}"
+                 MaxLength="250"
+                 AcceptsReturn="True"
+                 Height="70"
+                 TextWrapping="Wrap"
+                 VerticalContentAlignment="Top"
+                 Margin="0,12,0,0" />
+    </StackPanel>
+</UserControl>

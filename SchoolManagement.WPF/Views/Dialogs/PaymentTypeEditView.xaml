@@ -1,0 +1,41 @@
+<UserControl x:Class="SchoolManagement.WPF.Views.Dialogs.PaymentTypeEditView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+    <StackPanel>
+        <TextBlock Text="Name" Style="{StaticResource FieldLabelStyle}" />
+        <TextBox Text="{Binding Name, UpdateSourceTrigger=PropertyChanged}" />
+
+        <TextBlock Text="Description" Style="{StaticResource FieldLabelStyle}" Margin="0,14,0,0" />
+        <TextBox Text="{Binding Description, UpdateSourceTrigger=PropertyChanged}"
+                 AcceptsReturn="True"
+                 Height="56"
+                 TextWrapping="Wrap"
+                 VerticalContentAlignment="Top" />
+
+        <Grid Margin="0,14,0,0">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="16" />
+                <ColumnDefinition Width="*" />
+            </Grid.ColumnDefinitions>
+
+            <StackPanel Grid.Column="0">
+                <TextBlock Text="Default amount" Style="{StaticResource FieldLabelStyle}" />
+                <TextBox Text="{Binding DefaultAmount, UpdateSourceTrigger=PropertyChanged}" />
+            </StackPanel>
+
+            <StackPanel Grid.Column="2">
+                <TextBlock Text="Frequency" Style="{StaticResource FieldLabelStyle}" />
+                <ComboBox ItemsSource="{Binding Frequencies}"
+                          SelectedItem="{Binding Frequency}"
+                          ItemTemplate="{StaticResource EnumItemTemplate}" />
+            </StackPanel>
+        </Grid>
+
+        <CheckBox Content="Available for new invoices"
+                  IsChecked="{Binding IsActive}"
+                  Margin="0,16,0,0"
+                  Visibility="{Binding CanChangeActivity, Converter={StaticResource BooleanToVisibilityConverter}}" />
+    </StackPanel>
+</UserControl>

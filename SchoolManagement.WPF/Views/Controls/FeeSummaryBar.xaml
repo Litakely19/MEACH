@@ -1,0 +1,64 @@
+<!--
+    Totals of the current fee filter. Shown above the grid on the three fee
+    screens so the operator always sees what is expected, collected and missing.
+-->
+<UserControl x:Class="SchoolManagement.WPF.Views.Controls.FeeSummaryBar"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+    <UserControl.Resources>
+        <Style x:Key="SummaryCellStyle" TargetType="StackPanel">
+            <Setter Property="Margin" Value="0,0,28,0" />
+        </Style>
+    </UserControl.Resources>
+
+    <Border Style="{StaticResource CardStyle}" Padding="16,12">
+        <StackPanel Orientation="Horizontal">
+            <StackPanel Style="{StaticResource SummaryCellStyle}">
+                <TextBlock Text="Expected" Style="{StaticResource CaptionStyle}" />
+                <TextBlock Text="{Binding Summary.TotalExpected, Converter={StaticResource MoneyConverter}}"
+                           Style="{StaticResource MetricValueStyle}"
+                           FontSize="18" />
+            </StackPanel>
+
+            <StackPanel Style="{StaticResource SummaryCellStyle}">
+                <TextBlock Text="Collected" Style="{StaticResource CaptionStyle}" />
+                <TextBlock Text="{Binding Summary.TotalPaid, Converter={StaticResource MoneyConverter}}"
+                           Style="{StaticResource MetricValueStyle}"
+                           FontSize="18"
+                           Foreground="{StaticResource SuccessBrush}" />
+            </StackPanel>
+
+            <StackPanel Style="{StaticResource SummaryCellStyle}">
+                <TextBlock Text="Remaining" Style="{StaticResource CaptionStyle}" />
+                <TextBlock Text="{Binding Summary.TotalRemaining, Converter={StaticResource MoneyConverter}}"
+                           Style="{StaticResource MetricValueStyle}"
+                           FontSize="18"
+                           Foreground="{StaticResource DangerBrush}" />
+            </StackPanel>
+
+            <StackPanel Style="{StaticResource SummaryCellStyle}">
+                <TextBlock Text="Collection rate" Style="{StaticResource CaptionStyle}" />
+                <TextBlock Style="{StaticResource MetricValueStyle}" FontSize="18">
+                    <Run Text="{Binding Summary.CollectionRate, Mode=OneWay}" />
+                    <Run Text="%" />
+                </TextBlock>
+            </StackPanel>
+
+            <StackPanel Style="{StaticResource SummaryCellStyle}">
+                <TextBlock Text="Students owing" Style="{StaticResource CaptionStyle}" />
+                <TextBlock Text="{Binding Summary.UnpaidStudentCount}"
+                           Style="{StaticResource MetricValueStyle}"
+                           FontSize="18" />
+            </StackPanel>
+
+            <StackPanel Margin="0">
+                <TextBlock Text="Overdue students" Style="{StaticResource CaptionStyle}" />
+                <TextBlock Text="{Binding Summary.OverdueStudentCount}"
+                           Style="{StaticResource MetricValueStyle}"
+                           FontSize="18"
+                           Foreground="{StaticResource WarningBrush}" />
+            </StackPanel>
+        </StackPanel>
+    </Border>
+</UserControl>

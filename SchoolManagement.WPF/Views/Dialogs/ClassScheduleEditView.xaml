@@ -1,0 +1,33 @@
+<UserControl x:Class="SchoolManagement.WPF.Views.Dialogs.ClassScheduleEditView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+    <StackPanel>
+        <TextBlock Text="Day of the week" Style="{StaticResource FieldLabelStyle}" />
+        <ComboBox ItemsSource="{Binding Days}"
+                  SelectedItem="{Binding DayOfWeek}"
+                  ItemTemplate="{StaticResource EnumItemTemplate}" />
+
+        <Grid Margin="0,14,0,0">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="16" />
+                <ColumnDefinition Width="*" />
+            </Grid.ColumnDefinitions>
+
+            <StackPanel Grid.Column="0">
+                <TextBlock Text="Start" Style="{StaticResource FieldLabelStyle}" />
+                <ComboBox ItemsSource="{Binding TimeSlots}"
+                          SelectedItem="{Binding StartTime}"
+                          DisplayMemberPath="Label" />
+            </StackPanel>
+
+            <StackPanel Grid.Column="2">
+                <TextBlock Text="End" Style="{StaticResource FieldLabelStyle}" />
+                <ComboBox ItemsSource="{Binding TimeSlots}"
+                          SelectedItem="{Binding EndTime}"
+                          DisplayMemberPath="Label" />
+            </StackPanel>
+        </Grid>
+    </StackPanel>
+</UserControl>
