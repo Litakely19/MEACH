@@ -8,7 +8,8 @@ public record ReceiptListItem(
     int PaymentId,
     string PaymentNumber,
     string StudentNumber,
-    string StudentName,
+    string FirstName,
+    string LastName,
     string AcademicLevelName,
     string StudentGroupName,
     decimal Amount,
@@ -16,7 +17,10 @@ public record ReceiptListItem(
     DateTime IssueDate,
     string IssuedBy,
     int PrintCount,
-    PaymentStatus PaymentStatus);
+    PaymentStatus PaymentStatus)
+{
+    public string StudentName => $"{FirstName} {LastName}".Trim();
+}
 
 public record ReceiptFilter(
     string? SearchTerm = null,

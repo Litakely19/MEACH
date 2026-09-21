@@ -15,6 +15,11 @@ public interface IFeeService
         int studentId,
         CancellationToken cancellationToken = default);
 
+    /// <summary>Outstanding fees whose due date falls within the next <paramref name="withinDays"/> days (inclusive of today).</summary>
+    Task<IReadOnlyList<StudentFeeItem>> ListDueSoonAsync(
+        int withinDays = 7,
+        CancellationToken cancellationToken = default);
+
     Task<int> CreateAsync(CreateStudentFeeRequest request, CancellationToken cancellationToken = default);
 
     Task AdjustAsync(AdjustStudentFeeRequest request, CancellationToken cancellationToken = default);

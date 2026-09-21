@@ -5,10 +5,14 @@ namespace SchoolManagement.Application.DTOs.Attendance;
 public record AttendanceSheetStudent(
     int StudentId,
     string StudentNumber,
-    string StudentName,
+    string FirstName,
+    string LastName,
     int? AttendanceId,
     AttendanceStatus Status,
-    string? Remarks);
+    string? Remarks)
+{
+    public string StudentName => $"{FirstName} {LastName}".Trim();
+}
 
 public record AttendanceSheet(
     int AcademicLevelId,
@@ -40,7 +44,8 @@ public record SaveAttendanceRequest(
 public record AttendanceReportRow(
     int StudentId,
     string StudentNumber,
-    string StudentName,
+    string FirstName,
+    string LastName,
     string AcademicLevelName,
     string StudentGroupName,
     int TotalSessions,
@@ -48,7 +53,10 @@ public record AttendanceReportRow(
     int Absent,
     int Late,
     int Excused,
-    decimal AttendancePercentage);
+    decimal AttendancePercentage)
+{
+    public string StudentName => $"{FirstName} {LastName}".Trim();
+}
 
 public record AttendanceReportFilter(
     int? StudentId = null,

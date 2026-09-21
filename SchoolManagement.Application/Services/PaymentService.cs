@@ -128,7 +128,8 @@ public class PaymentService : IPaymentService
                 payment.PaymentNumber,
                 payment.StudentId,
                 payment.Student.StudentNumber,
-                StudentName = payment.Student.FirstName + " " + payment.Student.LastName,
+                StudentFirstName = payment.Student.FirstName,
+                StudentLastName = payment.Student.LastName,
                 AcademicLevelName = payment.Student.AcademicLevel.Name,
                 StudentGroupName = payment.Student.StudentGroup.Name,
                 PaymentTypeName = payment.StudentFee.PaymentType.Name,
@@ -150,7 +151,8 @@ public class PaymentService : IPaymentService
                 row.PaymentNumber,
                 row.StudentId,
                 row.StudentNumber,
-                row.StudentName,
+                row.StudentFirstName,
+                row.StudentLastName,
                 row.AcademicLevelName,
                 row.StudentGroupName,
                 row.PaymentTypeName,
@@ -363,6 +365,54 @@ public class PaymentService : IPaymentService
             await transaction.RollbackAsync(cancellationToken);
             throw;
         }
+    }
+
+    public async Task<RegisterMultiPaymentResult> RegisterManyAsync(
+        RegisterMultiPaymentRequest request,
+        CancellationToken cancellationToken = default)
+    {
+        _currentUser.EnsurePermission(Permission.RegisterPayments);
+
+        if (request.Allocations is null || request.Allocations.Count == 0)
+        {
+            throw new DomainException("Select at least one obligation to settle.");
+        }
+
+        if (request.Allocations.Any(line => line.Amount <= 0))
+        {
+            throw new DomainException("Each allocation amount must be greater than zero.");
+        }
+
+        if (request.Allocations.Select(line => line.StudentFeeId).Distinct().Count() != request.Allocations.Count)
+        {
+            throw new DomainException("The same obligation cannot be selected twice.");
+        }
+
+        var results = new List<RegisterPaymentResult>();
+        RegisterPaymentResult? first = null;
+
+        foreach (var line in request.Allocations)
+        {
+            var single = new RegisterPaymentRequest(
+                request.StudentId,
+                line.StudentFeeId,
+                line.Amount,
+                request.PaymentDate,
+                request.PaymentMethod,
+                request.Reference,
+                request.Notes,
+                request.DuplicateConfirmed);
+
+            var result = await RegisterAsync(single, cancellationToken);
+            results.Add(result);
+            first ??= result;
+        }
+
+        return new RegisterMultiPaymentResult(
+            results,
+            results.Sum(item => item.AmountApplied),
+            first?.ReceiptId,
+            first?.ReceiptNumber);
     }
 
     public async Task CancelAsync(CancelPaymentRequest request, CancellationToken cancellationToken = default)

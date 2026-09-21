@@ -25,7 +25,8 @@
                     </DataGrid.InputBindings>
                     <DataGrid.Columns>
                         <DataGridTextColumn Header="Number" Binding="{Binding StudentNumber}" Width="120" />
-                        <DataGridTextColumn Header="Student" Binding="{Binding StudentName}" Width="*" />
+                        <DataGridTextColumn Header="First name" Binding="{Binding FirstName}" Width="120" />
+                        <DataGridTextColumn Header="Last name" Binding="{Binding LastName}" Width="120" />
                         <DataGridTextColumn Header="Group" Binding="{Binding StudentGroupName}" Width="140" />
                         <DataGridTextColumn Header="Payment type"
                                             Binding="{Binding PaymentTypeName}"

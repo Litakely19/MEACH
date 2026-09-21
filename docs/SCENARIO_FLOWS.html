@@ -1,0 +1,516 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>MEACH — Scenario image workflows</title>
+  <script type="module">
+    import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs";
+    mermaid.initialize({
+      startOnLoad: true,
+      theme: "base",
+      themeVariables: {
+        primaryColor: "#e8f1f8",
+        primaryTextColor: "#1a2b3c",
+        primaryBorderColor: "#2c5f8a",
+        lineColor: "#2c5f8a",
+        secondaryColor: "#f5f7fa",
+        tertiaryColor: "#fff8e6",
+        fontFamily: "Segoe UI, Calibri, Arial, sans-serif",
+        fontSize: "15px"
+      },
+      flowchart: { curve: "basis", padding: 12, htmlLabels: true }
+    });
+    window.__mermaidReady = mermaid.run().then(() => {
+      document.documentElement.setAttribute("data-mermaid-done", "1");
+    });
+  </script>
+  <style>
+    @page { size: A4; margin: 14mm; }
+    * { box-sizing: border-box; }
+    body {
+      font-family: "Segoe UI", Calibri, Arial, sans-serif;
+      color: #1a2b3c;
+      line-height: 1.45;
+      margin: 0;
+      padding: 0 4mm;
+      font-size: 11pt;
+    }
+    h1 {
+      font-size: 22pt;
+      color: #1e3a5f;
+      border-bottom: 3px solid #2c5f8a;
+      padding-bottom: 8px;
+      margin-top: 0;
+    }
+    h2 {
+      font-size: 14pt;
+      color: #2c5f8a;
+      margin-top: 28px;
+      page-break-after: avoid;
+      border-left: 4px solid #2c5f8a;
+      padding-left: 10px;
+    }
+    .meta { color: #5a6a7a; margin-bottom: 24px; }
+    .scenario {
+      page-break-inside: avoid;
+      margin-bottom: 28px;
+      padding: 12px 14px 8px;
+      border: 1px solid #d5dde6;
+      border-radius: 8px;
+      background: #fafbfc;
+    }
+    .scenario h2 { margin-top: 0; }
+    .who { font-size: 10pt; color: #4a5a6a; margin: 4px 0 12px; }
+    .who strong { color: #1a2b3c; }
+    .mermaid {
+      display: flex;
+      justify-content: center;
+      background: #fff;
+      border-radius: 6px;
+      padding: 8px 4px;
+    }
+    .mermaid svg { max-width: 100%; height: auto; }
+    .note {
+      font-size: 9.5pt;
+      color: #3d4d5c;
+      background: #fff8e6;
+      border-left: 3px solid #c9a227;
+      padding: 6px 10px;
+      margin-top: 10px;
+    }
+    .toc { columns: 2; column-gap: 24px; margin: 16px 0 28px; }
+    .toc a { color: #2c5f8a; text-decoration: none; display: block; margin: 3px 0; font-size: 10.5pt; }
+    .cover-list { margin: 8px 0 0 18px; }
+  </style>
+</head>
+<body>
+
+  <h1>MEACH — Scenario image workflows</h1>
+  <p class="meta">Visual process diagrams for every common scenario in the application.<br/>
+  Amounts are in Malagasy Ariary (MGA / Ar).</p>
+
+  <div class="toc">
+    <a href="#s01">1. First launch &amp; sign in</a>
+    <a href="#s02">2. Change password (mandatory)</a>
+    <a href="#s03">3. Commission a new school (master data)</a>
+    <a href="#s04">4. Create a student group + schedule</a>
+    <a href="#s05">5. Enrol a student</a>
+    <a href="#s06">6. Transfer a student</a>
+    <a href="#s07">7. Bill Droit for one student</a>
+    <a href="#s08">8. Pay a Droit for one student</a>
+    <a href="#s09">9. Bill monthly Écolage for a group</a>
+    <a href="#s10">10. Pay Écolage (partial or full)</a>
+    <a href="#s11">11. Bill Livre (book fee)</a>
+    <a href="#s12">12. Bill Mock / Official Exam</a>
+    <a href="#s13">13. Bill Other fees (custom type)</a>
+    <a href="#s14">14. Take daily attendance</a>
+    <a href="#s15">15. View attendance report</a>
+    <a href="#s16">16. Work unpaid balances</a>
+    <a href="#s17">17. Print / reprint a receipt</a>
+    <a href="#s18">18. Cancel or reverse a payment</a>
+    <a href="#s19">19. Export a financial report</a>
+    <a href="#s20">20. Create a user account</a>
+    <a href="#s21">21. Create a custom payment type</a>
+    <a href="#s22">22. Backup the database</a>
+    <a href="#s23">23. Close a school year</a>
+  </div>
+
+  <!-- 1 -->
+  <section class="scenario" id="s01">
+    <h2>1. First launch &amp; sign in</h2>
+    <p class="who"><strong>Who:</strong> Any user · <strong>Result:</strong> Session opened (or password change required)</p>
+    <pre class="mermaid">
+flowchart TD
+  A[Start MEACH] --> B[Database created / migrated<br/>bootstrap data only]
+  B --> C[Sign-in window]
+  C --> D[Enter username + password]
+  D --> E{Credentials valid?}
+  E -->|No| F[Show error] --> D
+  E -->|Yes| G{Must change password?}
+  G -->|Yes| H[Password change dialog]
+  G -->|No| I[Main window MEACH]
+  H --> I
+    </pre>
+    <p class="note">Default admin: <strong>admin</strong> / <strong>ChangeMe123!</strong>. Release builds do not load demo students or fees.</p>
+  </section>
+
+  <!-- 2 -->
+  <section class="scenario" id="s02">
+    <h2>2. Change password (mandatory)</h2>
+    <p class="who"><strong>Who:</strong> User flagged Must change password · <strong>Result:</strong> New password stored; app usable</p>
+    <pre class="mermaid">
+flowchart TD
+  A[After successful login] --> B[Choose a new password]
+  B --> C[Enter current password]
+  C --> D[Enter new password + confirm]
+  D --> E{Policy OK?<br/>8+ chars, letter + digit}
+  E -->|No| F[Show validation error] --> D
+  E -->|Yes| G[Save]
+  G --> H[Enter main window]
+  B --> I{Cancel?}
+  I -->|Yes| J[Signed out]
+    </pre>
+  </section>
+
+  <!-- 3 -->
+  <section class="scenario" id="s03">
+    <h2>3. Commission a new school (master data)</h2>
+    <p class="who"><strong>Who:</strong> Administrator · <strong>Result:</strong> School ready to enrol students and bill</p>
+    <pre class="mermaid">
+flowchart TD
+  A[Sign in as admin] --> B[Administration → Settings]
+  B --> C[School name, contacts,<br/>currency MGA/Ar, footer]
+  C --> D[Save]
+  D --> E[People → School years]
+  E --> F[Confirm / create year<br/>Set as current]
+  F --> G[People → Academic levels]
+  G --> H[Confirm L1 L2 L3]
+  H --> I[People → Student groups]
+  I --> J[Create groups + schedules]
+  J --> K[Administration → Payment types]
+  K --> L[Adjust default amounts<br/>Add custom types if needed]
+  L --> M[Ready for students]
+    </pre>
+  </section>
+
+  <!-- 4 -->
+  <section class="scenario" id="s04">
+    <h2>4. Create a student group + schedule</h2>
+    <p class="who"><strong>Who:</strong> School manager / Administrator · <strong>Prerequisite:</strong> Academic level exists</p>
+    <pre class="mermaid">
+flowchart TD
+  A[People → Student groups] --> B[Create]
+  B --> C[Name + academic level]
+  C --> D[Save group]
+  D --> E[Select the group]
+  E --> F[Schedules → Add session]
+  F --> G[Weekday + start / end time]
+  G --> H{End after start?}
+  H -->|No| G
+  H -->|Yes| I[Save session]
+  I --> J[Group ready for enrolment<br/>and daily attendance]
+    </pre>
+  </section>
+
+  <!-- 5 -->
+  <section class="scenario" id="s05">
+    <h2>5. Enrol a student</h2>
+    <p class="who"><strong>Who:</strong> School manager / Administrator · <strong>Prerequisite:</strong> Level, group, open school year</p>
+    <pre class="mermaid">
+flowchart TD
+  A[People → Students] --> B[Create]
+  B --> C[First / last name, gender, DOB]
+  C --> D[Contacts optional]
+  D --> E[Level + group + school year]
+  E --> F[Enrolment date + status]
+  F --> G[Save]
+  G --> H[Student number assigned]
+  H --> I[Student appears in list]
+    </pre>
+  </section>
+
+  <!-- 6 -->
+  <section class="scenario" id="s06">
+    <h2>6. Transfer a student</h2>
+    <p class="who"><strong>Who:</strong> School manager / Administrator · <strong>Prerequisite:</strong> Destination group is active</p>
+    <pre class="mermaid">
+flowchart TD
+  A[Students → select student] --> B[Transfer]
+  B --> C[Choose destination group]
+  C --> D{Active and different?}
+  D -->|No| E[Cannot transfer] --> C
+  D -->|Yes| F[Optional reason]
+  F --> G[Confirm Transfer]
+  G --> H[Group + level updated]
+    </pre>
+  </section>
+
+  <!-- 7 -->
+  <section class="scenario" id="s07">
+    <h2>7. Bill Droit for one student</h2>
+    <p class="who"><strong>Who:</strong> Accountant / Administrator · <strong>Result:</strong> One unpaid Droit obligation for that year</p>
+    <pre class="mermaid">
+flowchart TD
+  A[Payments → Droit<br/>or Students → Create bill → Droit] --> B[Bill Droit]
+  B --> C[Select school year]
+  C --> D[Choose One student]
+  D --> E[Search and pick student]
+  E --> F[Amount = type default<br/>set due date]
+  F --> G[Bill the fee]
+  G --> H{Already has Droit<br/>this school year?}
+  H -->|Yes| I[Skipped — no duplicate]
+  H -->|No| J[StudentFee created<br/>Status Unpaid]
+  J --> K[Visible on Droit list<br/>and student file]
+    </pre>
+    <p class="note"><strong>Rule:</strong> Only one Droit per student per school year. School year must be open.</p>
+  </section>
+
+  <!-- 8 — EXAMPLE HIGHLIGHTED -->
+  <section class="scenario" id="s08">
+    <h2>8. Pay a Droit for one student</h2>
+    <p class="who"><strong>Who:</strong> Cashier / Administrator · <strong>Prerequisite:</strong> Droit already billed and outstanding</p>
+    <pre class="mermaid">
+flowchart TD
+  A[Start] --> B{Where from?}
+  B -->|Shell| C[Register a payment]
+  B -->|Droit list| D[Select Droit line → Register payment]
+  B -->|Student detail| E[Open student → Register payment]
+  C --> F[Search student]
+  D --> G[Fee preselected]
+  E --> G
+  F --> H[Outstanding fees load]
+  H --> I[Select Droit line]
+  I --> G
+  G --> J[Amount = remaining<br/>optional partial]
+  J --> K[Date + method<br/>Cash / Mobile money / …]
+  K --> L[Optional reference + notes]
+  L --> M[Print receipt? usually Yes]
+  M --> N[Register]
+  N --> O{Possible duplicate?}
+  O -->|Yes| P[Confirm to continue]
+  O -->|No| Q[Payment + receipt saved]
+  P --> Q
+  Q --> R[Fee balance updated]
+  R --> S[Print receipt if requested]
+  S --> T[Done]
+    </pre>
+    <p class="note"><strong>End-to-end with billing:</strong> Scenario 7 (bill) then Scenario 8 (pay). Partial payments are allowed until remaining reaches zero.</p>
+  </section>
+
+  <!-- 9 -->
+  <section class="scenario" id="s09">
+    <h2>9. Bill monthly Écolage for a group</h2>
+    <p class="who"><strong>Who:</strong> Accountant / Administrator</p>
+    <pre class="mermaid">
+flowchart TD
+  A[Payments → Écolage] --> B[Generate monthly fees]
+  B --> C[School year + months]
+  C --> D[Amount per month + due day 1–28]
+  D --> E[Entire group / all groups<br/>or One student]
+  E --> F[Generate]
+  F --> G[For each student × month]
+  G --> H{Already billed?}
+  H -->|Yes| I[Skip]
+  H -->|No| J[Create monthly StudentFee]
+  I --> K[Summary: created / skipped]
+  J --> K
+    </pre>
+  </section>
+
+  <!-- 10 -->
+  <section class="scenario" id="s10">
+    <h2>10. Pay Écolage (partial or full)</h2>
+    <p class="who"><strong>Who:</strong> Cashier / Administrator</p>
+    <pre class="mermaid">
+flowchart TD
+  A[Register a payment] --> B[Select student]
+  B --> C[Pick Écolage month line]
+  C --> D{Pay full remaining<br/>or partial?}
+  D -->|Full| E[Amount = remaining]
+  D -->|Partial| F[Enter amount less than remaining]
+  E --> G[Method + date → Register]
+  F --> G
+  G --> H[Receipt issued]
+  H --> I{Remaining = 0?}
+  I -->|Yes| J[Fee fully paid]
+  I -->|No| K[Still unpaid / partial<br/>pay again later]
+    </pre>
+  </section>
+
+  <!-- 11 -->
+  <section class="scenario" id="s11">
+    <h2>11. Bill Livre (book fee)</h2>
+    <p class="who"><strong>Who:</strong> Accountant / Administrator</p>
+    <pre class="mermaid">
+flowchart TD
+  A[Payments → Livre] --> B[Bill Livre]
+  B --> C[School year + target]
+  C --> D[Book description required<br/>e.g. Math book]
+  D --> E[Amount + due date]
+  E --> F[Bill]
+  F --> G{Same description<br/>already this year?}
+  G -->|Yes| H[Skipped for that student]
+  G -->|No| I[New Livre line created]
+    </pre>
+    <p class="note">Many Livre lines per year are allowed when descriptions differ.</p>
+  </section>
+
+  <!-- 12 -->
+  <section class="scenario" id="s12">
+    <h2>12. Bill Mock Exam or Official Exam</h2>
+    <p class="who"><strong>Who:</strong> Accountant / Administrator</p>
+    <pre class="mermaid">
+flowchart TD
+  A[Payments → Mock Exam<br/>or Official Exam] --> B[Bill …]
+  B --> C[School year + target]
+  C --> D[Description required]
+  D --> E[Amount + due date → Bill]
+  E --> F{Duplicate description<br/>same year?}
+  F -->|Yes| G[Skipped]
+  F -->|No| H[Fee line created]
+    </pre>
+  </section>
+
+  <!-- 13 -->
+  <section class="scenario" id="s13">
+    <h2>13. Bill Other fees (custom type)</h2>
+    <p class="who"><strong>Who:</strong> Accountant / Administrator · <strong>Prerequisite:</strong> Custom payment type exists</p>
+    <pre class="mermaid">
+flowchart TD
+  A[Payments → Other fees] --> B[Create bill]
+  B --> C[Select payment type<br/>Excursion / Trip / …]
+  C --> D[Amount fills from default]
+  D --> E[Description + school year]
+  E --> F[One student or group]
+  F --> G[Create bill]
+  G --> H[Custom fee lines created]
+    </pre>
+  </section>
+
+  <!-- 14 -->
+  <section class="scenario" id="s14">
+    <h2>14. Take daily attendance</h2>
+    <p class="who"><strong>Who:</strong> School manager / Administrator · <strong>Prerequisite:</strong> Schedule for that weekday</p>
+    <pre class="mermaid">
+flowchart TD
+  A[Attendance → Daily attendance] --> B[Level → Group → Date]
+  B --> C[Load sheet]
+  C --> D{Session scheduled today?}
+  D -->|No| E[Cannot save — add schedule]
+  D -->|Yes| F[Set Present / Absent / Late / Excused]
+  F --> G[Optional remarks]
+  G --> H[Save]
+  H --> I[Attendance recorded]
+    </pre>
+  </section>
+
+  <!-- 15 -->
+  <section class="scenario" id="s15">
+    <h2>15. View attendance report</h2>
+    <p class="who"><strong>Who:</strong> School manager / Administrator</p>
+    <pre class="mermaid">
+flowchart TD
+  A[Attendance → Attendance reports] --> B[Filter level / group / dates]
+  B --> C[Run]
+  C --> D[Per-student presence stats]
+    </pre>
+  </section>
+
+  <!-- 16 -->
+  <section class="scenario" id="s16">
+    <h2>16. Work unpaid balances</h2>
+    <p class="who"><strong>Who:</strong> Cashier (pay) / Accountant (view) / Administrator</p>
+    <pre class="mermaid">
+flowchart TD
+  A[Payments → Unpaid balances] --> B[List outstanding only]
+  B --> C[Filter / search student]
+  C --> D[Select fee line]
+  D --> E[Register payment]
+  E --> F[Collect money + receipt]
+  B --> G[Refresh overdue]
+  G --> H[Past-due flags updated]
+    </pre>
+  </section>
+
+  <!-- 17 -->
+  <section class="scenario" id="s17">
+    <h2>17. Print or reprint a receipt</h2>
+    <p class="who"><strong>Who:</strong> Cashier / Administrator</p>
+    <pre class="mermaid">
+flowchart TD
+  A[Payments → Receipts] --> B[Find receipt<br/>number / student / date]
+  B --> C[Select row]
+  C --> D[Print or Export PDF]
+  D --> E[Print count increased]
+    </pre>
+  </section>
+
+  <!-- 18 -->
+  <section class="scenario" id="s18">
+    <h2>18. Cancel or reverse a payment</h2>
+    <p class="who"><strong>Who:</strong> Administrator only · <strong>Prerequisite:</strong> Payment is Active; school year open</p>
+    <pre class="mermaid">
+flowchart TD
+  A[Open payment detail] --> B{Status Active?}
+  B -->|No| C[Cannot cancel / reverse]
+  B -->|Yes| D[Cancel or Reverse]
+  D --> E[Confirm + reason]
+  E --> F[Fee balance restored]
+  F --> G[Payment kept in history<br/>with new status]
+    </pre>
+  </section>
+
+  <!-- 19 -->
+  <section class="scenario" id="s19">
+    <h2>19. Export a financial report</h2>
+    <p class="who"><strong>Who:</strong> Accountant / School manager / Administrator</p>
+    <pre class="mermaid">
+flowchart TD
+  A[Reports → Financial reports] --> B[Choose section<br/>Daily / Monthly / By class / …]
+  B --> C[Set filters and dates]
+  C --> D[Review on screen]
+  D --> E[Export PDF or Excel]
+  E --> F[File saved / opened]
+    </pre>
+  </section>
+
+  <!-- 20 -->
+  <section class="scenario" id="s20">
+    <h2>20. Create a user account</h2>
+    <p class="who"><strong>Who:</strong> Administrator</p>
+    <pre class="mermaid">
+flowchart TD
+  A[Administration → Users] --> B[Create]
+  B --> C[Username, name, password]
+  C --> D[Assign role]
+  D --> E[Optional Must change password]
+  E --> F[Save]
+  F --> G[User can sign in]
+    </pre>
+  </section>
+
+  <!-- 21 -->
+  <section class="scenario" id="s21">
+    <h2>21. Create a custom payment type</h2>
+    <p class="who"><strong>Who:</strong> Administrator</p>
+    <pre class="mermaid">
+flowchart TD
+  A[Administration → Payment types] --> B[Create]
+  B --> C[Name e.g. Excursion]
+  C --> D[Default amount]
+  D --> E[Frequency: prefer OneTime]
+  E --> F[Save]
+  F --> G[Appears in Other fees<br/>and Create bill menu]
+    </pre>
+  </section>
+
+  <!-- 22 -->
+  <section class="scenario" id="s22">
+    <h2>22. Backup the database</h2>
+    <p class="who"><strong>Who:</strong> Administrator</p>
+    <pre class="mermaid">
+flowchart TD
+  A[Administration → Settings] --> B[Backup database]
+  B --> C[Choose destination file]
+  C --> D[SQLite copy written]
+  D --> E[Keep backup offline / USB]
+    </pre>
+  </section>
+
+  <!-- 23 -->
+  <section class="scenario" id="s23">
+    <h2>23. Close a school year</h2>
+    <p class="who"><strong>Who:</strong> Administrator</p>
+    <pre class="mermaid">
+flowchart TD
+  A[People → School years] --> B[Select year]
+  B --> C[Close]
+  C --> D[Year marked closed]
+  D --> E[No new bills]
+  D --> F[No register / cancel payments<br/>for students on that year]
+  B --> G[Reopen if corrections needed]
+    </pre>
+  </section>
+
+</body>
+</html>

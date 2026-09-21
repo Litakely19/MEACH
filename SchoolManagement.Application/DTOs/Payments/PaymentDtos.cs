@@ -7,7 +7,8 @@ public record PaymentListItem(
     string PaymentNumber,
     int StudentId,
     string StudentNumber,
-    string StudentName,
+    string FirstName,
+    string LastName,
     string AcademicLevelName,
     string StudentGroupName,
     string PaymentTypeName,
@@ -18,7 +19,10 @@ public record PaymentListItem(
     string? Reference,
     string ReceivedBy,
     PaymentStatus Status,
-    string? ReceiptNumber);
+    string? ReceiptNumber)
+{
+    public string StudentName => $"{FirstName} {LastName}".Trim();
+}
 
 public record PaymentFilter(
     string? SearchTerm = null,
@@ -43,6 +47,24 @@ public record RegisterPaymentRequest(
     string? Reference,
     string? Notes,
     bool DuplicateConfirmed = false);
+
+/// <summary>Settles several obligations for one student in a single register operation.</summary>
+public record RegisterMultiPaymentRequest(
+    int StudentId,
+    IReadOnlyList<PaymentAllocationLine> Allocations,
+    DateTime PaymentDate,
+    PaymentMethod PaymentMethod,
+    string? Reference,
+    string? Notes,
+    bool DuplicateConfirmed = false);
+
+public record PaymentAllocationLine(int StudentFeeId, decimal Amount);
+
+public record RegisterMultiPaymentResult(
+    IReadOnlyList<RegisterPaymentResult> Payments,
+    decimal TotalApplied,
+    int? PrimaryReceiptId,
+    string? PrimaryReceiptNumber);
 
 public record RegisterPaymentResult(
     int PaymentId,

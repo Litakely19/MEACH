@@ -6,18 +6,26 @@ namespace SchoolManagement.Application.Common;
 /// </summary>
 public static class PersonNameSearch
 {
-    public readonly record struct Terms(string Lower, string FirstPart, string LastPart, bool HasTwoParts);
+    public readonly record struct Terms(
+        string Lower,
+        string FirstPart,
+        string LastPart,
+        bool HasTwoParts,
+        IReadOnlyList<string> Parts);
 
     public static Terms Parse(string searchTerm)
     {
         var term = searchTerm.Trim();
         var lower = term.ToLowerInvariant();
-        var parts = term.Split(' ', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+        var parts = term.Split(' ', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
+            .Select(part => part.ToLowerInvariant())
+            .ToArray();
 
         return new Terms(
             lower,
-            parts.Length > 0 ? parts[0].ToLowerInvariant() : string.Empty,
-            parts.Length > 1 ? parts[^1].ToLowerInvariant() : string.Empty,
-            parts.Length >= 2);
+            parts.Length > 0 ? parts[0] : string.Empty,
+            parts.Length > 1 ? parts[^1] : string.Empty,
+            parts.Length >= 2,
+            parts);
     }
 }

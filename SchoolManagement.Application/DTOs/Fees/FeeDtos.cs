@@ -7,7 +7,8 @@ public record StudentFeeItem(
     int StudentFeeId,
     int StudentId,
     string StudentNumber,
-    string StudentName,
+    string FirstName,
+    string LastName,
     string AcademicLevelName,
     string StudentGroupName,
     int PaymentTypeId,
@@ -21,7 +22,10 @@ public record StudentFeeItem(
     DateTime DueDate,
     FeeStatus Status,
     bool IsMandatory,
-    string? Description = null);
+    string? Description = null)
+{
+    public string StudentName => $"{FirstName} {LastName}".Trim();
+}
 
 public record FeeFilter(
     int? AcademicLevelId = null,
@@ -108,4 +112,5 @@ public record FeeGenerationResult(
     int StudentsProcessed,
     int ItemsCreated,
     int ItemsSkipped,
-    decimal TotalBilled);
+    decimal TotalBilled,
+    IReadOnlyList<int> CreatedFeeIds);

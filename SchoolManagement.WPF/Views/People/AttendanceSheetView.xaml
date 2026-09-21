@@ -75,7 +75,9 @@
                 <DataGrid ItemsSource="{Binding Students}" SelectedItem="{Binding SelectedStudent}">
                     <DataGrid.Columns>
                         <DataGridTextColumn Header="Number" Binding="{Binding StudentNumber}" Width="130" />
-                        <DataGridTextColumn Header="Student" Binding="{Binding StudentName}" Width="*" />
+                        <DataGridTextColumn Header="Number" Binding="{Binding StudentNumber}" Width="120" />
+                        <DataGridTextColumn Header="First name" Binding="{Binding FirstName}" Width="*" />
+                        <DataGridTextColumn Header="Last name" Binding="{Binding LastName}" Width="*" />
                         <DataGridTemplateColumn Header="Status" Width="160">
                             <DataGridTemplateColumn.CellTemplate>
                                 <DataTemplate>

@@ -1,0 +1,134 @@
+<UserControl x:Class="SchoolManagement.WPF.Views.Dialogs.CombinedBillAndPayView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+    <StackPanel>
+        <TextBlock Style="{StaticResource CaptionStyle}" TextWrapping="Wrap" Margin="0,0,0,12">
+            Select several fee types for this student (for example Droit, Écolage and Livre),
+            bill them, and register payment immediately. Payment amounts may be partial.
+        </TextBlock>
+
+        <TextBlock Style="{StaticResource FieldLabelStyle}" Text="Student" />
+        <TextBlock Text="{Binding StudentLabel}" FontWeight="SemiBold" FontSize="15" Margin="0,0,0,12" />
+
+        <Grid Margin="0,0,0,12">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="16" />
+                <ColumnDefinition Width="140" />
+            </Grid.ColumnDefinitions>
+
+            <StackPanel Grid.Column="0">
+                <TextBlock Text="School year" Style="{StaticResource FieldLabelStyle}" />
+                <ComboBox ItemsSource="{Binding SchoolYears}"
+                          SelectedItem="{Binding SelectedSchoolYear}"
+                          DisplayMemberPath="DisplayName" />
+            </StackPanel>
+
+            <StackPanel Grid.Column="2">
+                <TextBlock Text="Écolage due day" Style="{StaticResource FieldLabelStyle}" />
+                <TextBox Text="{Binding DueDay, UpdateSourceTrigger=PropertyChanged}" />
+            </StackPanel>
+        </Grid>
+
+        <TextBlock Text="Fee types to bill &amp; pay" Style="{StaticResource FieldLabelStyle}" />
+        <Border BorderBrush="{StaticResource BorderBrush}"
+                BorderThickness="1"
+                CornerRadius="4"
+                MaxHeight="320"
+                Padding="6"
+                Margin="0,0,0,8">
+            <ScrollViewer VerticalScrollBarVisibility="Auto">
+                <ItemsControl ItemsSource="{Binding Lines}">
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <Border BorderBrush="{StaticResource BorderBrush}"
+                                    BorderThickness="0,0,0,1"
+                                    Padding="4,8">
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="Auto" />
+                                        <ColumnDefinition Width="1.4*" />
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="100" />
+                                        <ColumnDefinition Width="100" />
+                                    </Grid.ColumnDefinitions>
+
+                                    <CheckBox Grid.Column="0"
+                                              IsChecked="{Binding IsSelected}"
+                                              VerticalAlignment="Center"
+                                              Margin="0,0,10,0" />
+
+                                    <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                                        <TextBlock FontWeight="SemiBold" Text="{Binding Type.Name}" />
+                                        <TextBlock Style="{StaticResource CaptionStyle}"
+                                                   Text="{Binding MonthLabel}"
+                                                   Visibility="{Binding IsMonthly, Converter={StaticResource BooleanToVisibilityConverter}}" />
+                                    </StackPanel>
+
+                                    <StackPanel Grid.Column="2"
+                                                VerticalAlignment="Center"
+                                                Visibility="{Binding RequiresDescription, Converter={StaticResource BooleanToVisibilityConverter}}">
+                                        <TextBlock Text="Description" Style="{StaticResource CaptionStyle}" />
+                                        <TextBox Text="{Binding Description, UpdateSourceTrigger=PropertyChanged}"
+                                                 IsEnabled="{Binding IsSelected}" />
+                                    </StackPanel>
+
+                                    <StackPanel Grid.Column="3" Margin="8,0,0,0">
+                                        <TextBlock Text="Bill" Style="{StaticResource CaptionStyle}" />
+                                        <TextBox Text="{Binding BillAmount, UpdateSourceTrigger=PropertyChanged}"
+                                                 IsEnabled="{Binding IsSelected}" />
+                                    </StackPanel>
+
+                                    <StackPanel Grid.Column="4" Margin="8,0,0,0">
+                                        <TextBlock Text="Pay now" Style="{StaticResource CaptionStyle}" />
+                                        <TextBox Text="{Binding PayAmount, UpdateSourceTrigger=PropertyChanged}"
+                                                 IsEnabled="{Binding IsSelected}"
+                                                 ToolTip="May be less than the bill amount" />
+                                    </StackPanel>
+                                </Grid>
+                            </Border>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+            </ScrollViewer>
+        </Border>
+
+        <TextBlock Margin="0,0,0,12">
+            <Run Text="Total to pay now: " />
+            <Run Text="{Binding SelectedPayTotalLabel, Mode=OneWay}" FontWeight="SemiBold" />
+        </TextBlock>
+
+        <TextBlock Text="Immediate payment" Style="{StaticResource SectionTitleStyle}" />
+        <Grid Margin="0,8,0,0">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="16" />
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="16" />
+                <ColumnDefinition Width="*" />
+            </Grid.ColumnDefinitions>
+
+            <StackPanel Grid.Column="0">
+                <TextBlock Text="Payment date" Style="{StaticResource FieldLabelStyle}" />
+                <DatePicker SelectedDate="{Binding PaymentDate}" />
+            </StackPanel>
+
+            <StackPanel Grid.Column="2">
+                <TextBlock Text="Method" Style="{StaticResource FieldLabelStyle}" />
+                <ComboBox ItemsSource="{Binding PaymentMethods}"
+                          SelectedItem="{Binding PaymentMethod}"
+                          ItemTemplate="{StaticResource EnumItemTemplate}" />
+            </StackPanel>
+
+            <StackPanel Grid.Column="4">
+                <TextBlock Text="Reference" Style="{StaticResource FieldLabelStyle}" />
+                <TextBox Text="{Binding Reference, UpdateSourceTrigger=PropertyChanged}" />
+            </StackPanel>
+        </Grid>
+
+        <CheckBox Content="Print the receipt right away"
+                  IsChecked="{Binding PrintReceipt}"
+                  Margin="0,14,0,0" />
+    </StackPanel>
+</UserControl>

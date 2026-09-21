@@ -54,6 +54,9 @@ public class StudentListViewModel : PagedListViewModel<StudentListItem>
         BillCommand = new AsyncRelayCommand(
             BillAsync,
             parameter => CanManageFees && SelectedItem is not null && parameter is StudentBillMenuItem);
+        CombinedBillAndPayCommand = new AsyncRelayCommand(
+            CombinedBillAndPayAsync,
+            () => CanManageFees && SelectedItem is not null);
     }
 
     public bool CanManageStudents => _currentUser.HasPermission(Permission.ManageStudents);
@@ -79,6 +82,8 @@ public class StudentListViewModel : PagedListViewModel<StudentListItem>
     public ICommand DeleteCommand { get; }
 
     public ICommand BillCommand { get; }
+
+    public ICommand CombinedBillAndPayCommand { get; }
 
     public FilterOption<int>? SelectedLevel
     {
@@ -275,6 +280,25 @@ public class StudentListViewModel : PagedListViewModel<StudentListItem>
             viewModel => viewModel.Initialize(studentId));
     }
 
+    private async Task CombinedBillAndPayAsync()
+    {
+        if (SelectedItem is null)
+        {
+            return;
+        }
+
+        var viewModel = _serviceProvider.GetRequiredService<CombinedBillAndPayViewModel>();
+        viewModel.Initialize(SelectedItem.Id, SelectedItem.FullName);
+
+        if (!await _dialogService.ShowDialogAsync(viewModel))
+        {
+            return;
+        }
+
+        await ReloadCurrentPageAsync();
+        StatusMessage = viewModel.ResultSummary;
+    }
+
     private async Task BillAsync(object? parameter)
     {
         if (SelectedItem is null || parameter is not StudentBillMenuItem item)
@@ -296,13 +320,25 @@ public class StudentListViewModel : PagedListViewModel<StudentListItem>
             }
 
             summary = viewModel.ResultSummary;
+
+            if (viewModel.CreatedFeeIds.Count > 0
+                && _currentUser.HasPermission(Permission.RegisterPayments))
+            {
+                var paymentVm = _serviceProvider.GetRequiredService<PaymentDialogViewModel>();
+                paymentVm.InitializeForFees(studentId, viewModel.CreatedFeeIds);
+                if (await _dialogService.ShowDialogAsync(paymentVm)
+                    && !string.IsNullOrWhiteSpace(paymentVm.ResultSummary))
+                {
+                    summary = $"{summary} {paymentVm.ResultSummary}";
+                }
+            }
         }
         else
         {
             var scope = PaymentTypeScope.Named(item.Key);
             var title = item.IsWellKnown && WellKnownPaymentTypes.IsOnePerSchoolYear(item.Key)
-                ? $"Bill {item.Key} — {studentName}"
-                : $"Create bill — {item.Key} — {studentName}";
+                ? $"Bill and pay {item.Key} — {studentName}"
+                : $"Create bill and pay — {item.Key} — {studentName}";
 
             summary = await BillOneTimeAsync(scope, title, studentId);
             if (summary is null)
@@ -340,5 +376,6 @@ public class StudentListViewModel : PagedListViewModel<StudentListItem>
         (TransferCommand as AsyncRelayCommand)?.RaiseCanExecuteChanged();
         (DeleteCommand as AsyncRelayCommand)?.RaiseCanExecuteChanged();
         (BillCommand as AsyncRelayCommand)?.RaiseCanExecuteChanged();
+        (CombinedBillAndPayCommand as AsyncRelayCommand)?.RaiseCanExecuteChanged();
     }
 }

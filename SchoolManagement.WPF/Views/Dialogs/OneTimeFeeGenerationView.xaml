@@ -86,5 +86,45 @@
                   IsChecked="{Binding OnlyActiveStudents}"
                   Margin="0,16,0,0"
                   Visibility="{Binding BillEntireGroup, Converter={StaticResource BooleanToVisibilityConverter}}" />
+
+        <StackPanel Visibility="{Binding ImmediatePaymentMode, Converter={StaticResource BooleanToVisibilityConverter}}"
+                    Margin="0,18,0,0">
+            <TextBlock Text="Register payment now" Style="{StaticResource SectionTitleStyle}" />
+            <TextBlock Text="Payment amount may be less than the billed amount (partial payment)."
+                       Style="{StaticResource CaptionStyle}"
+                       Margin="0,0,0,10"
+                       TextWrapping="Wrap" />
+
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="16" />
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="16" />
+                    <ColumnDefinition Width="*" />
+                </Grid.ColumnDefinitions>
+
+                <StackPanel Grid.Column="0">
+                    <TextBlock Text="Payment amount" Style="{StaticResource FieldLabelStyle}" />
+                    <TextBox Text="{Binding PaymentAmount, UpdateSourceTrigger=PropertyChanged}" />
+                </StackPanel>
+
+                <StackPanel Grid.Column="2">
+                    <TextBlock Text="Payment date" Style="{StaticResource FieldLabelStyle}" />
+                    <DatePicker SelectedDate="{Binding PaymentDate}" />
+                </StackPanel>
+
+                <StackPanel Grid.Column="4">
+                    <TextBlock Text="Method" Style="{StaticResource FieldLabelStyle}" />
+                    <ComboBox ItemsSource="{Binding PaymentMethods}"
+                              SelectedItem="{Binding PaymentMethod}"
+                              ItemTemplate="{StaticResource EnumItemTemplate}" />
+                </StackPanel>
+            </Grid>
+
+            <CheckBox Content="Print the receipt right away"
+                      IsChecked="{Binding PrintReceipt}"
+                      Margin="0,12,0,0" />
+        </StackPanel>
     </StackPanel>
 </UserControl>

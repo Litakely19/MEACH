@@ -17,3 +17,6 @@ publish-single/
 
 logs/
 *.log
+
+docs/node_modules/
+docs/package-lock.json

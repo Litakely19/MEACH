@@ -86,6 +86,8 @@ public class MonthlyFeeGenerationViewModel : DialogViewModelBase
 
     public string ResultSummary { get; private set; } = string.Empty;
 
+    public IReadOnlyList<int> CreatedFeeIds { get; private set; } = [];
+
     public bool BillSingleStudent
     {
         get => _billSingleStudent;
@@ -255,6 +257,7 @@ public class MonthlyFeeGenerationViewModel : DialogViewModelBase
               + $"total {Money.Format(result.TotalBilled)}"
               + (result.ItemsSkipped > 0 ? $" ({result.ItemsSkipped} already billed lines skipped)." : ".");
 
+        CreatedFeeIds = result.CreatedFeeIds;
         return true;
     }
 

@@ -74,9 +74,16 @@
                     <Button Content="Edit"
                             Command="{Binding EditCommand}"
                             Margin="10,0,0,0" />
-                    <Button Content="Create bill"
+                    <Button Content="Bill &amp; pay several"
+                            Command="{Binding CombinedBillAndPayCommand}"
                             Margin="10,0,0,0"
                             Style="{StaticResource AccentButtonStyle}"
+                            MinWidth="140"
+                            ToolTip="Bill several fee types for this student and register payment immediately"
+                            Visibility="{Binding CanManageFees, Converter={StaticResource BooleanToVisibilityConverter}}" />
+                    <Button Content="Create bill"
+                            Margin="10,0,0,0"
+                            Style="{StaticResource SecondaryButtonStyle}"
                             MinWidth="120"
                             Click="CreateBillButton_OnClick"
                             Visibility="{Binding CanManageFees, Converter={StaticResource BooleanToVisibilityConverter}}">
@@ -122,7 +129,8 @@
                         </DataGrid.InputBindings>
                         <DataGrid.Columns>
                             <DataGridTextColumn Header="Number" Binding="{Binding StudentNumber}" Width="130" />
-                            <DataGridTextColumn Header="Name" Binding="{Binding FullName}" Width="*" />
+                            <DataGridTextColumn Header="First name" Binding="{Binding FirstName}" Width="140" />
+                            <DataGridTextColumn Header="Last name" Binding="{Binding LastName}" Width="140" />
                             <DataGridTextColumn Header="Level" Binding="{Binding AcademicLevelName}" Width="80" />
                             <DataGridTextColumn Header="Group" Binding="{Binding StudentGroupName}" Width="160" />
                             <DataGridTextColumn Header="Phone" Binding="{Binding PhoneNumber}" Width="120" />

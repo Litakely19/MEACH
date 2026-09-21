@@ -106,7 +106,8 @@ public class StudentService : IStudentService
             .Select(row => new StudentListItem(
                 row.Id,
                 row.StudentNumber,
-                $"{row.FirstName} {row.LastName}".Trim(),
+                row.FirstName,
+                row.LastName,
                 row.Gender,
                 row.DateOfBirth,
                 row.LevelName,

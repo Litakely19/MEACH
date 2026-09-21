@@ -13,6 +13,10 @@ public interface IPaymentService
         RegisterPaymentRequest request,
         CancellationToken cancellationToken = default);
 
+    Task<RegisterMultiPaymentResult> RegisterManyAsync(
+        RegisterMultiPaymentRequest request,
+        CancellationToken cancellationToken = default);
+
     Task<DuplicatePaymentWarning?> CheckForDuplicateAsync(
         RegisterPaymentRequest request,
         CancellationToken cancellationToken = default);

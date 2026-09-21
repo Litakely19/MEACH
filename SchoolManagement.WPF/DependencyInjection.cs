@@ -88,6 +88,7 @@ public static class DependencyInjection
         services.AddTransient<InvoiceDetailViewModel>();
         services.AddTransient<MonthlyFeeGenerationViewModel>();
         services.AddTransient<OneTimeFeeGenerationViewModel>();
+        services.AddTransient<CombinedBillAndPayViewModel>();
         services.AddTransient<PaymentDialogViewModel>();
         services.AddTransient<PaymentDetailViewModel>();
         services.AddTransient<UserEditViewModel>();

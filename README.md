@@ -41,7 +41,9 @@ dotnet restore MEACH.slnx
 dotnet run --project SchoolManagement.WPF
 ```
 
-The first launch applies EF Core migrations, seeds roles, academic levels L1–L3, payment types, a current school year, and the default administrator.
+The first launch applies EF Core migrations and seeds bootstrap data (roles, administrator, levels, payment types, settings, school year). When `Application:SeedDemoData` is `true` (default in `appsettings.json`), it also loads sample groups, students, fees, payments, and demo users.
+
+To reload fake data on an existing install, delete `%LocalAppData%\SchoolManagement\school_management.db` and start the app again.
 
 ### Default login
 
@@ -51,6 +53,11 @@ The first launch applies EF Core migrations, seeds roles, academic levels L1–L
 | Password | `ChangeMe123!` |
 
 The application **blocks access until that password is changed**.
+
+## User documentation
+
+Full end-user workflows: [docs/WORKFLOWS.md](docs/WORKFLOWS.md) · [docs/WORKFLOWS.pdf](docs/WORKFLOWS.pdf).  
+Scenario image workflows (flowcharts): [docs/SCENARIO_FLOWS.pdf](docs/SCENARIO_FLOWS.pdf).
 
 ## Database
 

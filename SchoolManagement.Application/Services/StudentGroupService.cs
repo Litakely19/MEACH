@@ -133,7 +133,8 @@ public class StudentGroupService : IStudentGroupService
             .Select(student => new StudentListItem(
                 student.Id,
                 student.StudentNumber,
-                $"{student.FirstName} {student.LastName}",
+                student.FirstName,
+                student.LastName,
                 student.Gender,
                 student.DateOfBirth,
                 student.LevelName,

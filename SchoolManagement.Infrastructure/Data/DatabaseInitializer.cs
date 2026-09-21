@@ -53,9 +53,7 @@ public class DatabaseInitializer : IDatabaseInitializer
     private bool ShouldSeedDemoData()
     {
         var configured = _configuration["Application:SeedDemoData"];
-        return string.IsNullOrWhiteSpace(configured)
-            || !bool.TryParse(configured, out var enabled)
-            || enabled;
+        return bool.TryParse(configured, out var enabled) && enabled;
     }
 
     private async Task EnsureRolesAsync(CancellationToken cancellationToken)

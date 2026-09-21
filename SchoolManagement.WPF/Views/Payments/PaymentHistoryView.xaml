@@ -143,7 +143,9 @@
                         <DataGrid.Columns>
                             <DataGridTextColumn Header="Payment" Binding="{Binding PaymentNumber}" Width="140" />
                             <DataGridTextColumn Header="Date" Binding="{Binding PaymentDate, StringFormat=d}" Width="100" />
-                            <DataGridTextColumn Header="Student" Binding="{Binding StudentName}" Width="*" />
+                            <DataGridTextColumn Header="Student number" Binding="{Binding StudentNumber}" Width="120" />
+                            <DataGridTextColumn Header="First name" Binding="{Binding FirstName}" Width="120" />
+                            <DataGridTextColumn Header="Last name" Binding="{Binding LastName}" Width="120" />
                             <DataGridTextColumn Header="Group" Binding="{Binding StudentGroupName}" Width="140" />
                             <DataGridTextColumn Header="Type" Binding="{Binding PaymentTypeName}" Width="130" />
                             <DataGridTextColumn Header="Period" Binding="{Binding PeriodLabel}" Width="140" />

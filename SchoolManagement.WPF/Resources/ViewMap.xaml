@@ -166,6 +166,10 @@
         <dialogs:OneTimeFeeGenerationView />
     </DataTemplate>
 
+    <DataTemplate DataType="{x:Type dialogsVm:CombinedBillAndPayViewModel}">
+        <dialogs:CombinedBillAndPayView />
+    </DataTemplate>
+
     <DataTemplate DataType="{x:Type dialogsVm:PaymentDialogViewModel}">
         <dialogs:PaymentDialogView />
     </DataTemplate>

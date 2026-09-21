@@ -78,7 +78,8 @@ public class AttendanceService : IAttendanceService
                 return new AttendanceSheetStudent(
                     student.Id,
                     student.StudentNumber,
-                    $"{student.FirstName} {student.LastName}".Trim(),
+                    student.FirstName,
+                    student.LastName,
                     record?.Id,
                     record?.Status ?? AttendanceStatus.Present,
                     record?.Remarks);
@@ -260,7 +261,8 @@ public class AttendanceService : IAttendanceService
                 return new AttendanceReportRow(
                     student.Id,
                     student.StudentNumber,
-                    $"{student.FirstName} {student.LastName}".Trim(),
+                    student.FirstName,
+                    student.LastName,
                     student.LevelName,
                     student.GroupName,
                     total,

@@ -138,7 +138,8 @@
                             </DataGrid.InputBindings>
                             <DataGrid.Columns>
                                 <DataGridTextColumn Header="Number" Binding="{Binding StudentNumber}" Width="120" />
-                                <DataGridTextColumn Header="Name" Binding="{Binding FullName}" Width="*" />
+                                <DataGridTextColumn Header="First name" Binding="{Binding FirstName}" Width="*" />
+                                <DataGridTextColumn Header="Last name" Binding="{Binding LastName}" Width="*" />
                                 <DataGridTextColumn Header="Outstanding"
                                                     Binding="{Binding OutstandingBalance, Converter={StaticResource MoneyConverter}}"
                                                     Width="130" />

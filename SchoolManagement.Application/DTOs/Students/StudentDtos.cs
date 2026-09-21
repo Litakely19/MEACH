@@ -5,7 +5,8 @@ namespace SchoolManagement.Application.DTOs.Students;
 public record StudentListItem(
     int Id,
     string StudentNumber,
-    string FullName,
+    string FirstName,
+    string LastName,
     Gender Gender,
     DateTime DateOfBirth,
     string AcademicLevelName,
@@ -13,7 +14,10 @@ public record StudentListItem(
     string? PhoneNumber,
     StudentStatus Status,
     DateTime EnrollmentDate,
-    decimal OutstandingBalance);
+    decimal OutstandingBalance)
+{
+    public string FullName => $"{FirstName} {LastName}".Trim();
+}
 
 public record StudentFilter(
     string? SearchTerm = null,

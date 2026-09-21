@@ -1,4 +1,5 @@
 using System.Collections.ObjectModel;
+using System.ComponentModel;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using SchoolManagement.Application.Common;
@@ -13,7 +14,7 @@ using SchoolManagement.WPF.ViewModels.Shared;
 namespace SchoolManagement.WPF.ViewModels.Dialogs;
 
 /// <summary>
-/// Registers money against one StudentFee and issues the receipt in the same operation.
+/// Registers money against one or several StudentFee lines and issues receipts.
 /// </summary>
 public class PaymentDialogViewModel : DialogViewModelBase
 {
@@ -23,8 +24,7 @@ public class PaymentDialogViewModel : DialogViewModelBase
 
     private int? _initialStudentId;
     private int? _initialStudentFeeId;
-    private StudentFeeItem? _selectedFee;
-    private decimal _amount;
+    private IReadOnlyList<int>? _preselectedFeeIds;
     private DateTime? _paymentDate = DateTime.Today;
     private PaymentMethod _paymentMethod = PaymentMethod.Cash;
     private string? _reference;
@@ -43,7 +43,7 @@ public class PaymentDialogViewModel : DialogViewModelBase
 
         Title = "Register a payment";
         ConfirmButtonText = "Register the payment";
-        DialogWidth = 720;
+        DialogWidth = 780;
 
         Student = new StudentPicker(scopedExecutor);
         Student.SelectedStudentChanged += (_, _) => _ = LoadFeesAsync();
@@ -51,37 +51,11 @@ public class PaymentDialogViewModel : DialogViewModelBase
 
     public StudentPicker Student { get; }
 
-    public ObservableCollection<StudentFeeItem> OutstandingFees { get; } = new();
+    public ObservableCollection<FeePaymentLine> FeeLines { get; } = new();
 
     public IReadOnlyList<PaymentMethod> PaymentMethods { get; } = Enum.GetValues<PaymentMethod>();
 
     public string ResultSummary { get; private set; } = string.Empty;
-
-    public StudentFeeItem? SelectedFee
-    {
-        get => _selectedFee;
-        set
-        {
-            if (!SetProperty(ref _selectedFee, value))
-            {
-                return;
-            }
-
-            OnPropertyChanged(nameof(RemainingLabel));
-            OnPropertyChanged(nameof(ObligationLabel));
-
-            if (value is not null)
-            {
-                Amount = value.RemainingAmount;
-            }
-        }
-    }
-
-    public decimal Amount
-    {
-        get => _amount;
-        set => SetProperty(ref _amount, value);
-    }
 
     public DateTime? PaymentDate
     {
@@ -113,16 +87,22 @@ public class PaymentDialogViewModel : DialogViewModelBase
         set => SetProperty(ref _printReceipt, value);
     }
 
-    public string RemainingLabel => SelectedFee is null ? "-" : Money.Format(SelectedFee.RemainingAmount);
+    public decimal SelectedTotal => FeeLines.Where(line => line.IsSelected).Sum(line => line.Amount);
 
-    public string ObligationLabel => SelectedFee is null
-        ? "-"
-        : $"{SelectedFee.PeriodLabel} — expected {Money.Format(SelectedFee.ExpectedAmount)}, paid {Money.Format(SelectedFee.PaidAmount)}";
+    public string SelectedTotalLabel => Money.Format(SelectedTotal);
 
     public void Initialize(int? studentId = null, int? studentFeeId = null)
     {
         _initialStudentId = studentId;
         _initialStudentFeeId = studentFeeId;
+        _preselectedFeeIds = studentFeeId is null ? null : [studentFeeId.Value];
+    }
+
+    public void InitializeForFees(int studentId, IReadOnlyList<int> studentFeeIds)
+    {
+        _initialStudentId = studentId;
+        _initialStudentFeeId = studentFeeIds.FirstOrDefault();
+        _preselectedFeeIds = studentFeeIds;
     }
 
     public override Task LoadAsync() =>
@@ -143,22 +123,21 @@ public class PaymentDialogViewModel : DialogViewModelBase
             return false;
         }
 
-        if (SelectedFee is null)
+        var selected = FeeLines.Where(line => line.IsSelected && line.Amount > 0).ToList();
+        if (selected.Count == 0)
         {
-            ErrorMessage = "Select the payment obligation this payment settles.";
+            ErrorMessage = "Select at least one obligation and enter an amount.";
             return false;
         }
 
-        if (Amount <= 0)
+        foreach (var line in selected)
         {
-            ErrorMessage = "The amount must be greater than zero.";
-            return false;
-        }
-
-        if (Amount > SelectedFee.RemainingAmount)
-        {
-            ErrorMessage = $"The amount exceeds the remaining balance ({RemainingLabel}).";
-            return false;
+            if (line.Amount > line.Fee.RemainingAmount)
+            {
+                ErrorMessage =
+                    $"Amount for {line.Fee.PeriodLabel} exceeds the remaining balance ({Money.Format(line.Fee.RemainingAmount)}).";
+                return false;
+            }
         }
 
         if (PaymentDate is null)
@@ -167,17 +146,25 @@ public class PaymentDialogViewModel : DialogViewModelBase
             return false;
         }
 
-        var request = new RegisterPaymentRequest(
+        var multiRequest = new RegisterMultiPaymentRequest(
             Student.SelectedStudent.Id,
-            SelectedFee.StudentFeeId,
-            Amount,
+            selected.Select(line => new PaymentAllocationLine(line.Fee.StudentFeeId, line.Amount)).ToList(),
+            PaymentDate.Value,
+            PaymentMethod,
+            Reference,
+            Notes);
+
+        var probe = new RegisterPaymentRequest(
+            multiRequest.StudentId,
+            selected[0].Fee.StudentFeeId,
+            selected.Sum(line => line.Amount),
             PaymentDate.Value,
             PaymentMethod,
             Reference,
             Notes);
 
         var duplicate = await _scopedExecutor.RunAsync(provider =>
-            provider.GetRequiredService<IPaymentService>().CheckForDuplicateAsync(request));
+            provider.GetRequiredService<IPaymentService>().CheckForDuplicateAsync(probe));
 
         if (duplicate is not null)
         {
@@ -192,26 +179,29 @@ public class PaymentDialogViewModel : DialogViewModelBase
                 return false;
             }
 
-            request = request with { DuplicateConfirmed = true };
+            multiRequest = multiRequest with { DuplicateConfirmed = true };
         }
 
         var result = await _scopedExecutor.RunAsync(provider =>
-            provider.GetRequiredService<IPaymentService>().RegisterAsync(request));
+            provider.GetRequiredService<IPaymentService>().RegisterManyAsync(multiRequest));
 
-        ResultSummary = $"Payment {result.PaymentNumber} of {Money.Format(result.AmountApplied)} registered, "
-            + $"receipt {result.ReceiptNumber}. Remaining: {Money.Format(result.FeeRemainingAmount)}.";
+        ResultSummary = selected.Count == 1
+            ? $"Payment {result.Payments[0].PaymentNumber} of {Money.Format(result.TotalApplied)} registered, "
+              + $"receipt {result.Payments[0].ReceiptNumber}. Remaining: {Money.Format(result.Payments[0].FeeRemainingAmount)}."
+            : $"{result.Payments.Count} payments registered for a total of {Money.Format(result.TotalApplied)}"
+              + (result.PrimaryReceiptNumber is null ? "." : $". First receipt: {result.PrimaryReceiptNumber}.");
 
-        if (PrintReceipt)
+        if (PrintReceipt && result.PrimaryReceiptId is int receiptId)
         {
             try
             {
-                await _documentService.PrintReceiptAsync(result.ReceiptId);
+                await _documentService.PrintReceiptAsync(receiptId);
             }
             catch (Exception exception)
             {
-                Logger.LogWarning(exception, "The receipt {Receipt} could not be printed", result.ReceiptNumber);
+                Logger.LogWarning(exception, "A receipt could not be printed after multi-payment");
                 _dialogService.ShowError(
-                    $"The payment is registered but receipt {result.ReceiptNumber} could not be printed. "
+                    "The payment is registered but a receipt could not be printed. "
                     + "Reprint it from the receipts screen.",
                     "Printing");
             }
@@ -224,8 +214,14 @@ public class PaymentDialogViewModel : DialogViewModelBase
 
     private async Task LoadFeesCoreAsync()
     {
-        OutstandingFees.Clear();
-        SelectedFee = null;
+        foreach (var line in FeeLines)
+        {
+            line.PropertyChanged -= OnFeeLineChanged;
+        }
+
+        FeeLines.Clear();
+        OnPropertyChanged(nameof(SelectedTotal));
+        OnPropertyChanged(nameof(SelectedTotalLabel));
 
         if (Student.SelectedStudent is null)
         {
@@ -236,19 +232,72 @@ public class PaymentDialogViewModel : DialogViewModelBase
             provider.GetRequiredService<IFeeService>()
                 .ListOutstandingByStudentAsync(Student.SelectedStudent.Id));
 
+        var preselect = _preselectedFeeIds?.ToHashSet() ?? [];
+
         foreach (var fee in fees)
         {
-            OutstandingFees.Add(fee);
+            var selected = preselect.Count == 0
+                ? fee.StudentFeeId == (_initialStudentFeeId ?? fees.FirstOrDefault()?.StudentFeeId)
+                : preselect.Contains(fee.StudentFeeId);
+
+            var line = new FeePaymentLine(fee, selected);
+            line.PropertyChanged += OnFeeLineChanged;
+            FeeLines.Add(line);
         }
 
-        SelectedFee = _initialStudentFeeId is null
-            ? OutstandingFees.FirstOrDefault()
-            : OutstandingFees.FirstOrDefault(fee => fee.StudentFeeId == _initialStudentFeeId)
-              ?? OutstandingFees.FirstOrDefault();
-
-        if (OutstandingFees.Count == 0)
+        if (FeeLines.Count == 0)
         {
             StatusMessage = "This student has no outstanding balance.";
         }
+
+        OnPropertyChanged(nameof(SelectedTotal));
+        OnPropertyChanged(nameof(SelectedTotalLabel));
+    }
+
+    private void OnFeeLineChanged(object? sender, PropertyChangedEventArgs e)
+    {
+        if (e.PropertyName is nameof(FeePaymentLine.IsSelected) or nameof(FeePaymentLine.Amount))
+        {
+            OnPropertyChanged(nameof(SelectedTotal));
+            OnPropertyChanged(nameof(SelectedTotalLabel));
+        }
+    }
+}
+
+public sealed class FeePaymentLine : ObservableObject
+{
+    private bool _isSelected;
+    private decimal _amount;
+
+    public FeePaymentLine(StudentFeeItem fee, bool isSelected)
+    {
+        Fee = fee;
+        _isSelected = isSelected;
+        _amount = isSelected ? fee.RemainingAmount : 0m;
+    }
+
+    public StudentFeeItem Fee { get; }
+
+    public bool IsSelected
+    {
+        get => _isSelected;
+        set
+        {
+            if (!SetProperty(ref _isSelected, value))
+            {
+                return;
+            }
+
+            if (value && Amount <= 0)
+            {
+                Amount = Fee.RemainingAmount;
+            }
+        }
+    }
+
+    public decimal Amount
+    {
+        get => _amount;
+        set => SetProperty(ref _amount, value);
     }
 }

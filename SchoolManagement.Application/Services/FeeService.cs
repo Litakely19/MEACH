@@ -119,6 +119,27 @@ public class FeeService : IFeeService
         return Map(rows);
     }
 
+    public async Task<IReadOnlyList<StudentFeeItem>> ListDueSoonAsync(
+        int withinDays = 7,
+        CancellationToken cancellationToken = default)
+    {
+        EnsureCanView();
+
+        var days = Math.Max(0, withinDays);
+        var today = DateTime.Today;
+        var until = today.AddDays(days);
+
+        var rows = await Project(
+                BuildQuery(new FeeFilter(OnlyOutstanding: true, PageSize: 500))
+                    .Where(fee => fee.DueDate >= today && fee.DueDate < until.AddDays(1))
+                    .OrderBy(fee => fee.DueDate)
+                    .ThenBy(fee => fee.Student.LastName)
+                    .ThenBy(fee => fee.Student.FirstName))
+            .ToListAsync(cancellationToken);
+
+        return Map(rows);
+    }
+
     public async Task<int> CreateAsync(CreateStudentFeeRequest request, CancellationToken cancellationToken = default)
     {
         _currentUser.EnsurePermission(Permission.ManageFees);
@@ -252,6 +273,7 @@ public class FeeService : IFeeService
         var created = 0;
         var skipped = 0;
         var totalBilled = 0m;
+        var createdFees = new List<StudentFee>();
         var userId = _currentUser.RequireUserId();
         var now = DateTime.Now;
         var dueDay = Math.Clamp(request.DueDay, 1, 28);
@@ -289,6 +311,7 @@ public class FeeService : IFeeService
                 fee.Status = FeeStatusCalculator.ForFee(fee);
 
                 await _unitOfWork.StudentFees.AddAsync(fee, cancellationToken);
+                createdFees.Add(fee);
                 created++;
                 totalBilled += request.AmountPerMonth;
             }
@@ -302,7 +325,12 @@ public class FeeService : IFeeService
             cancellationToken: cancellationToken);
         await _unitOfWork.SaveChangesAsync(cancellationToken);
 
-        return new FeeGenerationResult(students.Count, created, skipped, totalBilled);
+        return new FeeGenerationResult(
+            students.Count,
+            created,
+            skipped,
+            totalBilled,
+            createdFees.Select(fee => fee.Id).ToList());
     }
 
     public async Task<FeeGenerationResult> GenerateOneTimeAsync(
@@ -333,6 +361,7 @@ public class FeeService : IFeeService
         var created = 0;
         var skipped = 0;
         var totalBilled = 0m;
+        var createdFees = new List<StudentFee>();
         var userId = _currentUser.RequireUserId();
         var now = DateTime.Now;
         var notes = string.IsNullOrWhiteSpace(request.Description) ? null : request.Description.Trim();
@@ -377,6 +406,7 @@ public class FeeService : IFeeService
             fee.Status = FeeStatusCalculator.ForFee(fee);
 
             await _unitOfWork.StudentFees.AddAsync(fee, cancellationToken);
+            createdFees.Add(fee);
             created++;
             totalBilled += request.Amount;
         }
@@ -389,7 +419,12 @@ public class FeeService : IFeeService
             cancellationToken: cancellationToken);
         await _unitOfWork.SaveChangesAsync(cancellationToken);
 
-        return new FeeGenerationResult(students.Count, created, skipped, totalBilled);
+        return new FeeGenerationResult(
+            students.Count,
+            created,
+            skipped,
+            totalBilled,
+            createdFees.Select(fee => fee.Id).ToList());
     }
 
     public async Task CancelAsync(int studentFeeId, string reason, CancellationToken cancellationToken = default)
@@ -571,7 +606,8 @@ public class FeeService : IFeeService
             fee.Id,
             fee.StudentId,
             fee.Student.StudentNumber,
-            fee.Student.FirstName + " " + fee.Student.LastName,
+            fee.Student.FirstName,
+            fee.Student.LastName,
             fee.Student.AcademicLevel.Name,
             fee.Student.StudentGroup.Name,
             fee.PaymentTypeId,
@@ -590,7 +626,8 @@ public class FeeService : IFeeService
             row.StudentFeeId,
             row.StudentId,
             row.StudentNumber,
-            row.StudentName,
+            row.FirstName,
+            row.LastName,
             row.AcademicLevelName,
             row.StudentGroupName,
             row.PaymentTypeId,
@@ -713,7 +750,8 @@ public class FeeService : IFeeService
         int StudentFeeId,
         int StudentId,
         string StudentNumber,
-        string StudentName,
+        string FirstName,
+        string LastName,
         string AcademicLevelName,
         string StudentGroupName,
         int PaymentTypeId,
